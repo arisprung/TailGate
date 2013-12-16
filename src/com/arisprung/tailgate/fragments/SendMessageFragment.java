@@ -80,7 +80,7 @@ public class SendMessageFragment extends Fragment
 		protected Void doInBackground(Void... params)
 		{
 			String strMessage = messageEditText.getText().toString();
-			ServerUtilities.sendMessageToServer(getActivity(),strMessage );
+			ServerUtilities.sendMessageToServer(getActivity(),strMessage);
 			
 			return null;
 		}

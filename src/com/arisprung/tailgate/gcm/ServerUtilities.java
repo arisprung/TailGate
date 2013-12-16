@@ -174,17 +174,29 @@ public final class ServerUtilities
 		String strLastName = mTailgateSharedPreferences.getStringSharedPreferences(TailGateSharedPreferences.FACEBOOK_LAST_NAME, "");
 		String strTeam = mTailgateSharedPreferences.getStringSharedPreferences(TailGateSharedPreferences.SELECTED_TEAM, "");
 		
+		
 		if(strFaceId.equals("") )
 		{
 			Toast.makeText(context,  " Message wasnt sent - Please login thru Facebook in order to send message", Toast.LENGTH_SHORT).show();
 			return;
 		}
-		
+		params.put("location",mTailgateSharedPreferences.getStringSharedPreferences(TailGateSharedPreferences.FACEBOOK_LOCATION, ""));
+		params.put("usename", mTailgateSharedPreferences.getStringSharedPreferences(TailGateSharedPreferences.FACEBOOK_NAME, ""));
+		params.put("email",mTailgateSharedPreferences.getStringSharedPreferences(TailGateSharedPreferences.FACEBOOK_EMAIL, ""));
 		params.put("message", message);
 		params.put("faceID", strFaceId);
 		params.put("face_first_name", strFirstName);
 		params.put("face_last_name", strLastName);
 		params.put("team", strTeam);
+		params.put("regId", GCMRegistrar.getRegistrationId(context));
+		params.put("usename", mTailgateSharedPreferences.getStringSharedPreferences(TailGateSharedPreferences.FACEBOOK_NAME, ""));
+		Location loc = LocationUtilTailGate.getUserLocation(context);
+
+		String strLat = String.valueOf(loc.getLatitude());
+		String strLong = String.valueOf(loc.getLongitude());
+		params.put("longnitude",strLong);
+		params.put("latitude",strLat);	
+		
 		try
 		{
 			post(serverUrl, params);

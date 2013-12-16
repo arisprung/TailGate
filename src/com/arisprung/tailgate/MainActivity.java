@@ -558,6 +558,7 @@ public class MainActivity extends FragmentActivity
 						mTailgateSharedPreferences.putStringSharedPreferences(TailGateSharedPreferences.FACEBOOK_NAME, user.getUsername());
 						mTailgateSharedPreferences.putStringSharedPreferences(TailGateSharedPreferences.FACEBOOK_FIRST_NAME, user.getFirstName());
 						mTailgateSharedPreferences.putStringSharedPreferences(TailGateSharedPreferences.FACEBOOK_LAST_NAME, user.getLastName());
+				
 
 						// String name = user.getUsername();
 						// String strId = user.getId();

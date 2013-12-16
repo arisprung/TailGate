@@ -15,6 +15,7 @@
  */
 package com.arisprung.tailgate;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -51,8 +52,10 @@ public class GCMIntentService extends GCMBaseIntentService
 	@SuppressWarnings("hiding")
 	private static final String TAG = "GCMIntentService";
 	private static final String AUTHORITY = "com.tailgate.contentprovider";
-	private static final String BASE_PATH = "messages";
-	public static final Uri CONTENT_URI = Uri.parse("content://" + AUTHORITY + "/" + BASE_PATH);
+	private static final String BASE_PATH_MESSAGES = "messages";
+	private static final String BASE_PATH_LOCATION = "location";
+	public static final Uri CONTENT_URI_MESSAGES = Uri.parse("content://" + AUTHORITY + "/" + BASE_PATH_MESSAGES);
+	public static final Uri CONTENT_URI_LOCATION = Uri.parse("content://" + AUTHORITY + "/" + BASE_PATH_LOCATION);
 	private TailGateSharedPreferences mTailgateSharedPreferences = null;
 
 	public GCMIntentService()
@@ -115,6 +118,8 @@ public class GCMIntentService extends GCMBaseIntentService
 		{
 			generateNotification(context, message.getMessage());
 		}
+
+		parseLocationJSON(jObj);
 	}
 
 	@Override
@@ -146,7 +151,7 @@ public class GCMIntentService extends GCMBaseIntentService
 			contentValues.put("message", message.getMessage());
 			contentValues.put("message_face_name", message.getUserName());
 
-			getContentResolver().insert(CONTENT_URI, contentValues);
+			getContentResolver().insert(CONTENT_URI_MESSAGES, contentValues);
 		}
 		catch (Exception e)
 		{
@@ -183,6 +188,37 @@ public class GCMIntentService extends GCMBaseIntentService
 		notification.setLatestEventInfo(context, title, message, intent);
 		notification.flags |= Notification.FLAG_AUTO_CANCEL;
 		notificationManager.notify(0, notification);
+	}
+
+	private void parseLocationJSON(JSONObject jObj)
+	{
+		try
+		{
+			JSONArray array = jObj.getJSONArray("json_array_location");
+
+			for (int i = 0; i < array.length(); i++)
+			{ // **line 2**
+				JSONObject childJSONObject = array.getJSONObject(i);
+				String faceID = childJSONObject.getString("faceID");
+				String logn = childJSONObject.getString("lognitude");
+				String lati = childJSONObject.getString("latitude");
+				
+				ContentValues contentValues = new ContentValues();
+		
+				contentValues.put(TailGateMessagesDataBase.COLUMN_LOCATION_FACE_ID,faceID);
+				contentValues.put(TailGateMessagesDataBase.COLUMN_LONGNITUDE, logn);
+				contentValues.put(TailGateMessagesDataBase.COLUMN_LANITUDE, lati);
+				
+				getContentResolver().insert(CONTENT_URI_LOCATION, contentValues);
+				
+			}
+		}
+		catch (JSONException e)
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
 	}
 
 }
