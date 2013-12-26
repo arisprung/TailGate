@@ -18,6 +18,7 @@ public class TailGateSharedPreferences {
     public static final String FACEBOOK_LAST_NAME = "face_lastt_name";
     public static final String SELECTED_TEAM = "selected_team";
     public static final String SELECTED_LEAGUE = "selected_league";
+    public static final String REG_ID = "reg_id";
 
     private TailGateSharedPreferences(Context context){
     	mSharedPreferencesFile = context.getSharedPreferences(SHARED_PREFS, Context.MODE_PRIVATE);

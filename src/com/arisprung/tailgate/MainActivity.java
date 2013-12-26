@@ -587,6 +587,22 @@ public class MainActivity extends FragmentActivity
 						// mUser = faceuser;
 						mTailgateSharedPreferences.putStringSharedPreferences(TailGateSharedPreferences.FACEBOOK_LOCATION, strCity);
 						registerForGCM();
+						String strTeam = mTailgateSharedPreferences.getStringSharedPreferences(TailGateSharedPreferences.SELECTED_TEAM, "");
+						String strFacID = mTailgateSharedPreferences.getStringSharedPreferences(TailGateSharedPreferences.FACEBOOK_ID, "");
+						if(strTeam.equals("") || strFacID.equals(""))
+						{
+
+							 if(strFacID.equals(""))
+							{
+								
+								TailGateUtility.showAuthenticatedDialog(MainActivity.this,"Please Login","First login in order to see messages.");
+								
+							}
+							 else if(strTeam.equals(""))
+							{
+								TailGateUtility.showAuthenticatedDialog(MainActivity.this,"Select Team","Please select a team in order to see messages.");
+							}
+						}
 					}
 				}
 				if (response.getError() != null)

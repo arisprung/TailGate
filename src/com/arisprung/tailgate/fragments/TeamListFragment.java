@@ -6,6 +6,7 @@ import com.arisprung.tailgate.MainActivity;
 import com.arisprung.tailgate.MessageBean;
 import com.arisprung.tailgate.R;
 import com.arisprung.tailgate.TailGateSharedPreferences;
+import com.arisprung.tailgate.TailGateUtility;
 import com.arisprung.tailgate.TailgateConstants;
 import com.arisprung.tailgate.adapter.TeamListAdapter;
 import com.arisprung.tailgate.db.TailGateMessagesDataBase;
@@ -125,95 +126,96 @@ public class TeamListFragment extends Fragment
 			public void onItemClick(AdapterView<?> arg0, View v, int position, long l)
 			{
 
-				if (strLeagueSelected.equals(MainActivity.mLeagueSelected) || strTeamSelected.equals("") )
+				if (!mTailgateSharedPreferences.getStringSharedPreferences(TailGateSharedPreferences.FACEBOOK_ID, "").equals(""))
 				{
-					if (strTeamSelected.equals(""))
-					{
-						Toast.makeText(getActivity(), strTeamSelected + " Selected....", Toast.LENGTH_SHORT).show();
-						mTailgateSharedPreferences.putStringSharedPreferences(TailGateSharedPreferences.SELECTED_TEAM, mTeamList[position]);
-						mTailgateSharedPreferences
-								.putStringSharedPreferences(TailGateSharedPreferences.SELECTED_LEAGUE, MainActivity.mLeagueSelected);
-						strTeamSelected = mTeamList[position];
-						strLeagueSelected = MainActivity.mLeagueSelected;
-						sendDataToServer(position);
-					}
-					else
-					{
 
-						if (mTeamList[position].equals(strTeamSelected))
+					if (strLeagueSelected.equals(MainActivity.mLeagueSelected) || strTeamSelected.equals(""))
+					{
+						if (strTeamSelected.equals(""))
 						{
-							listView.setItemChecked(position, false);
-							mTailgateSharedPreferences.putStringSharedPreferences(TailGateSharedPreferences.SELECTED_TEAM, "");
-							mTailgateSharedPreferences.putStringSharedPreferences(TailGateSharedPreferences.SELECTED_LEAGUE, "");
-							strTeamSelected = "";
-							strLeagueSelected = "";
-							Toast.makeText(getActivity(), strTeamSelected + " Unselected....", Toast.LENGTH_SHORT).show();
-						}
-						else
-						{
+							Toast.makeText(getActivity(), strTeamSelected + " Selected....", Toast.LENGTH_SHORT).show();
 							mTailgateSharedPreferences.putStringSharedPreferences(TailGateSharedPreferences.SELECTED_TEAM, mTeamList[position]);
 							mTailgateSharedPreferences.putStringSharedPreferences(TailGateSharedPreferences.SELECTED_LEAGUE,
 									MainActivity.mLeagueSelected);
 							strTeamSelected = mTeamList[position];
 							strLeagueSelected = MainActivity.mLeagueSelected;
-							Toast.makeText(getActivity(), strTeamSelected + " Selected....", Toast.LENGTH_SHORT).show();
 							sendDataToServer(position);
+						}
+						else
+						{
+
+							if (mTeamList[position].equals(strTeamSelected))
+							{
+								listView.setItemChecked(position, false);
+								mTailgateSharedPreferences.putStringSharedPreferences(TailGateSharedPreferences.SELECTED_TEAM, "");
+								mTailgateSharedPreferences.putStringSharedPreferences(TailGateSharedPreferences.SELECTED_LEAGUE, "");
+								strTeamSelected = "";
+								strLeagueSelected = "";
+								Toast.makeText(getActivity(), strTeamSelected + " Unselected....", Toast.LENGTH_SHORT).show();
+							}
+							else
+							{
+								mTailgateSharedPreferences.putStringSharedPreferences(TailGateSharedPreferences.SELECTED_TEAM, mTeamList[position]);
+								mTailgateSharedPreferences.putStringSharedPreferences(TailGateSharedPreferences.SELECTED_LEAGUE,
+										MainActivity.mLeagueSelected);
+								strTeamSelected = mTeamList[position];
+								strLeagueSelected = MainActivity.mLeagueSelected;
+								Toast.makeText(getActivity(), strTeamSelected + " Selected....", Toast.LENGTH_SHORT).show();
+								sendDataToServer(position);
+
+							}
 
 						}
-
+					}
+					else
+					{
+						listView.setItemChecked(position, false);
+						Toast.makeText(getActivity(), "You can only select one team. Please unselect " + strTeamSelected + " the try again",
+								Toast.LENGTH_SHORT).show();
 					}
 				}
 				else
 				{
-					listView.setItemChecked(position, false);
-					Toast.makeText(getActivity(), "You can only select one team. Please unselect " + strTeamSelected + " the try again",
-							Toast.LENGTH_SHORT).show();
+					TailGateUtility.showAuthenticatedDialog(getActivity(),"Please Login", "Please login before selecting team");
 				}
-
 			}
 		});
 
 	}
-	
+
 	private class SendDataAsyncTask extends AsyncTask<Void, Void, Void>
 	{
-
-		
 
 		@Override
 		protected Void doInBackground(Void... params)
 		{
 
-	
-			ServerUtilities.register(getActivity(),GCMRegistrar.getRegistrationId(getActivity()));
+			ServerUtilities.register(getActivity(), GCMRegistrar.getRegistrationId(getActivity()));
 			return null;
 		}
 
-	
-
 	}
-	
+
 	private void sendDataToServer(int position)
 	{
-		
+
 		String strRegisterID = GCMRegistrar.getRegistrationId(getActivity());
-		if(strRegisterID != null)
+		if (strRegisterID != null)
 		{
-			
+
 			SendDataAsyncTask loadAsyncTask = new SendDataAsyncTask();
 			loadAsyncTask.execute();
-			
+
 		}
 		else
 		{
-			Toast.makeText(getActivity(), "Please login first and then Select Team",
-					Toast.LENGTH_LONG).show();
+			Toast.makeText(getActivity(), "Please login first and then Select Team", Toast.LENGTH_LONG).show();
 			listView.setItemChecked(position, false);
 			mTailgateSharedPreferences.putStringSharedPreferences(TailGateSharedPreferences.SELECTED_TEAM, "");
 			mTailgateSharedPreferences.putStringSharedPreferences(TailGateSharedPreferences.SELECTED_LEAGUE, "");
 			strTeamSelected = "";
 			strLeagueSelected = "";
 		}
-		
+
 	}
 }

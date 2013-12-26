@@ -15,6 +15,13 @@
  */
 package com.arisprung.tailgate;
 
+import static com.arisprung.tailgate.gcm.CommonUtilities.SENDER_ID;
+import static com.arisprung.tailgate.gcm.CommonUtilities.displayMessage;
+
+import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
+import java.net.URL;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -25,23 +32,16 @@ import android.app.PendingIntent;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
-import android.os.Message;
-import android.util.JsonReader;
 import android.util.Log;
 
-import com.arisprung.tailgate.R;
 import com.arisprung.tailgate.db.TailGateMessagesDataBase;
 import com.arisprung.tailgate.gcm.JsonUtil;
 import com.arisprung.tailgate.gcm.ServerUtilities;
-
 import com.google.android.gcm.GCMBaseIntentService;
 import com.google.android.gcm.GCMRegistrar;
-
-import static com.arisprung.tailgate.gcm.CommonUtilities.DISPLAY_MESSAGE_ACTION;
-import static com.arisprung.tailgate.gcm.CommonUtilities.EXTRA_MESSAGE;
-import static com.arisprung.tailgate.gcm.CommonUtilities.SENDER_ID;
-import static com.arisprung.tailgate.gcm.CommonUtilities.displayMessage;
 
 /**
  * IntentService responsible for handling GCM messages.
@@ -62,11 +62,18 @@ public class GCMIntentService extends GCMBaseIntentService
 	{
 		super(SENDER_ID);
 	}
+	
+	
 
 	@Override
 	protected void onRegistered(Context context, String registrationId)
 	{
 		Log.i(TAG, "Device registered: regId = " + registrationId);
+		if (mTailgateSharedPreferences == null)
+			mTailgateSharedPreferences = TailGateSharedPreferences.getInstance(getApplicationContext());
+		
+		mTailgateSharedPreferences.putStringSharedPreferences(TailGateSharedPreferences.REG_ID, registrationId);
+		
 		displayMessage(context, getString(R.string.gcm_registered));
 		ServerUtilities.register(context, registrationId);
 	}
@@ -202,12 +209,16 @@ public class GCMIntentService extends GCMBaseIntentService
 				String faceID = childJSONObject.getString("faceID");
 				String logn = childJSONObject.getString("lognitude");
 				String lati = childJSONObject.getString("latitude");
+				String name = childJSONObject.getString("user");
+				
 				
 				ContentValues contentValues = new ContentValues();
-		
+				
+				
 				contentValues.put(TailGateMessagesDataBase.COLUMN_LOCATION_FACE_ID,faceID);
-				contentValues.put(TailGateMessagesDataBase.COLUMN_LONGNITUDE, logn);
-				contentValues.put(TailGateMessagesDataBase.COLUMN_LANITUDE, lati);
+				contentValues.put(TailGateMessagesDataBase.COLUMN_LOCATION_FACE_NAME,name);
+				contentValues.put(TailGateMessagesDataBase.COLUMN_LONGNITUDE,logn);
+				contentValues.put(TailGateMessagesDataBase.COLUMN_LANITUDE,lati);
 				
 				getContentResolver().insert(CONTENT_URI_LOCATION, contentValues);
 				
@@ -220,5 +231,7 @@ public class GCMIntentService extends GCMBaseIntentService
 		}
 
 	}
+	
+	
 
 }

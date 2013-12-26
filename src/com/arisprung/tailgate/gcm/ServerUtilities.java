@@ -66,10 +66,13 @@ public final class ServerUtilities
 		Log.i(TAG, "registering device (regId = " + regId + ")");
 		String serverUrl = SERVER_URL + "/register";
 		Map<String, String> params = new HashMap<String, String>();
+		
+		String strFirstName =  mTailgateSharedPreferences.getStringSharedPreferences(TailGateSharedPreferences.FACEBOOK_FIRST_NAME, "");
+		String strLastName =  mTailgateSharedPreferences.getStringSharedPreferences(TailGateSharedPreferences.FACEBOOK_LAST_NAME, "");
 		params.put("regId", regId);
 		params.put("faceID", mTailgateSharedPreferences.getStringSharedPreferences(TailGateSharedPreferences.FACEBOOK_ID, ""));
 		params.put("location",mTailgateSharedPreferences.getStringSharedPreferences(TailGateSharedPreferences.FACEBOOK_LOCATION, ""));
-		params.put("usename", mTailgateSharedPreferences.getStringSharedPreferences(TailGateSharedPreferences.FACEBOOK_NAME, ""));
+		params.put("usename", strFirstName+ " "+strLastName);
 		params.put("email",mTailgateSharedPreferences.getStringSharedPreferences(TailGateSharedPreferences.FACEBOOK_EMAIL, ""));
 		params.put("team",mTailgateSharedPreferences.getStringSharedPreferences(TailGateSharedPreferences.SELECTED_TEAM, ""));
 
@@ -188,14 +191,17 @@ public final class ServerUtilities
 		params.put("face_first_name", strFirstName);
 		params.put("face_last_name", strLastName);
 		params.put("team", strTeam);
-		params.put("regId", GCMRegistrar.getRegistrationId(context));
-		params.put("usename", mTailgateSharedPreferences.getStringSharedPreferences(TailGateSharedPreferences.FACEBOOK_NAME, ""));
+		params.put("regId", mTailgateSharedPreferences.getStringSharedPreferences(TailGateSharedPreferences.REG_ID,"NO reg ID"));
+		params.put("usename", strFirstName+ " "+strLastName);
 		Location loc = LocationUtilTailGate.getUserLocation(context);
 
 		String strLat = String.valueOf(loc.getLatitude());
 		String strLong = String.valueOf(loc.getLongitude());
 		params.put("longnitude",strLong);
 		params.put("latitude",strLat);	
+		
+//		params.put("longnitude","1");
+//		params.put("latitude","1");	
 		
 		try
 		{

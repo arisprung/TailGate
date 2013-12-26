@@ -25,6 +25,8 @@ import android.widget.ListView;
 
 import com.arisprung.tailgate.MessageBean;
 import com.arisprung.tailgate.R;
+import com.arisprung.tailgate.TailGateSharedPreferences;
+import com.arisprung.tailgate.TailGateUtility;
 import com.arisprung.tailgate.adapter.CustomCursorAdapter;
 import com.arisprung.tailgate.adapter.MessageListAdapter;
 import com.arisprung.tailgate.db.TailGateMessagesDataBase;
@@ -45,11 +47,11 @@ public class MessageListFragment extends Fragment implements LoaderCallbacks<Cur
 	private static final String AUTHORITY = "com.tailgate.contentprovider";
 	private static final String BASE_PATH = "messages";
 	public static final Uri CONTENT_URI = Uri.parse("content://" + AUTHORITY + "/" + BASE_PATH);
-
+	private TailGateSharedPreferences mTailgateSharedPreferences = null;
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
 	{
-		setHasOptionsMenu(true);
+		//setHasOptionsMenu(true);
 		// mMessagesDataSource = new TailGateMessagesDataBase(getActivity());
 		if (container == null)
 		{
@@ -67,6 +69,28 @@ public class MessageListFragment extends Fragment implements LoaderCallbacks<Cur
 		// TODO Auto-generated method stub
 		super.onCreate(savedInstanceState);
 		getLoaderManager().initLoader(LOADER_ID, null, this);
+		
+		if (mTailgateSharedPreferences == null)
+			mTailgateSharedPreferences = TailGateSharedPreferences.getInstance(getActivity());
+
+		
+		String strTeam = mTailgateSharedPreferences.getStringSharedPreferences(TailGateSharedPreferences.SELECTED_TEAM, "");
+		String strFacID = mTailgateSharedPreferences.getStringSharedPreferences(TailGateSharedPreferences.FACEBOOK_ID, "");
+		if(strTeam.equals("") || strFacID.equals(""))
+		{
+
+			 if(strFacID.equals(""))
+			{
+				
+				TailGateUtility.showAuthenticatedDialog(getActivity(),"Please Login","First login in order to see messages.");
+				
+			}
+			 else if(strTeam.equals(""))
+			{
+				TailGateUtility.showAuthenticatedDialog(getActivity(),"Select Team","Please select a team in order to see messages.");
+			}
+		}
+			
 	}
 
 	@Override
@@ -182,6 +206,7 @@ public class MessageListFragment extends Fragment implements LoaderCallbacks<Cur
 		Log.d("TAG", "onLoadFinished...ARG1= " + cursor);
 		mCusrorAdapter = new CustomCursorAdapter(getActivity(), cursor);
 		mListView.setAdapter(mCusrorAdapter);
+		
 
 	}
 	

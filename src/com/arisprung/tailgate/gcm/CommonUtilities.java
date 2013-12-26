@@ -30,8 +30,8 @@ public final class CommonUtilities {
      * Base URL of the Demo Server (such as http://my_host:8080/gcm-demo)
      */
 	
-	//public static final String SERVER_URL = "http://10.0.0.1:8888";
-   public static final String SERVER_URL = "http://arisprungcmserver.appspot.com";
+	//public static final String SERVER_URL = "http://10.0.0.3:8888";
+  public static final String SERVER_URL = "http://arisprungcmserver.appspot.com";
   // HttpPost post = new HttpPost("http://91.205.154.186:8080/GCMKassamServer/GCMRegistration");
 
     /**

@@ -133,7 +133,9 @@ public class TailGateMessagesContentProvider extends ContentProvider
 				BASE_PATH = BASE_PATH_MESSAGES;
 				break;
 			case LOCATION:
-				id = sqlDB.insert(TailGateMessagesDataBase.TABLE_LOCATION, null, values);
+				id = sqlDB.insertWithOnConflict(TailGateMessagesDataBase.TABLE_LOCATION, null, values, SQLiteDatabase.CONFLICT_REPLACE);
+				//id = sqlDB.insert(TailGateMessagesDataBase.TABLE_LOCATION, null, values);
+				//(TailGateMessagesDataBase.TABLE_LOCATION, null, values);
 				BASE_PATH = BASE_PATH_LOCATION;
 				break;
 			default:

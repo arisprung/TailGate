@@ -2,24 +2,23 @@ package com.arisprung.tailgate.fragments;
 
 
 
-import com.arisprung.tailgate.R;
-import com.arisprung.tailgate.gcm.ServerUtilities;
-
-
-import android.content.Context;
-import android.database.Cursor;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Message;
 import android.support.v4.app.Fragment;
-import android.support.v4.content.AsyncTaskLoader;
-
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.View.OnClickListener;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Toast;
+
+import com.arisprung.tailgate.MainActivity;
+import com.arisprung.tailgate.R;
+import com.arisprung.tailgate.TailGateSharedPreferences;
+import com.arisprung.tailgate.gcm.ServerUtilities;
 
 
 public class SendMessageFragment extends Fragment
@@ -31,6 +30,7 @@ public class SendMessageFragment extends Fragment
 	private Button addButton;
 	// EditText messageEditText;
 	private  EditText messageEditText;
+	private TailGateSharedPreferences mTailgateSharedPreferences = null;
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
@@ -48,6 +48,16 @@ public class SendMessageFragment extends Fragment
 
 	}
 	
+	@Override
+	public void onCreate(Bundle savedInstanceState)
+	{
+		// TODO Auto-generated method stub
+		super.onCreate(savedInstanceState);
+		
+		if (mTailgateSharedPreferences == null)
+			mTailgateSharedPreferences = TailGateSharedPreferences.getInstance(getActivity());
+	}
+	
 	
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState)
@@ -61,10 +71,35 @@ public class SendMessageFragment extends Fragment
 			{
 				if (!messageEditText.getText().toString().equals("") && (messageEditText.getText().length() < 140))
 				{
-					SendMessageAsyncTaskLoader loadAsyncTask = new SendMessageAsyncTaskLoader();
-					loadAsyncTask.execute();
+					String strTeam = mTailgateSharedPreferences.getStringSharedPreferences(TailGateSharedPreferences.SELECTED_TEAM, "");
+					String strFacID = mTailgateSharedPreferences.getStringSharedPreferences(TailGateSharedPreferences.FACEBOOK_ID, "");
+					if(strTeam.equals("") || strFacID.equals(""))
+					{
+						if(strTeam.equals(""))
+						{
+							showDialog("Select Team","Please select a team in order to send messages.");
+						}
+						else if(strFacID.equals(""))
+						{
+							showDialog("Please Login","First login in order to send messages.");
+						}
+						
+						
+						
+						
+					}
+					else
+					{
+						SendMessageAsyncTaskLoader loadAsyncTask = new SendMessageAsyncTaskLoader();
+						loadAsyncTask.execute();
+					}
+					
 					
 			
+				}
+				else
+				{
+					showDialog("Empty Text","Text cant be empty.");
 				}
 
 			}
@@ -98,7 +133,22 @@ public class SendMessageFragment extends Fragment
 	
 	}
 	
-	
+	private void showDialog(String title,String strText)
+	{
+		AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+		builder.setTitle(title);
+		builder.setMessage(strText);
+		
+		builder.setNeutralButton("OK", new DialogInterface.OnClickListener() {
+			@Override
+			public void onClick(DialogInterface arg0, int arg1) {
+				// TODO Auto-generated method stub
+				//Toast.makeText(getActivity(), "Close is clicked", Toast.LENGTH_LONG).show();
+				
+			}
+		});
+		builder.show(); //To show the AlertDialog
+	}
 
 
 

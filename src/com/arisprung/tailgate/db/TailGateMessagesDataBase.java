@@ -27,6 +27,7 @@ public class TailGateMessagesDataBase
 	public static final String TABLE_LOCATION = "location_table";
 	public static final String COLUMN_LOCATION_ID = "_id";
 	public static final String COLUMN_LOCATION_FACE_ID = "location_face_id";
+	public static final String COLUMN_LOCATION_FACE_NAME = "location_face_name";
 	public static final String COLUMN_LANITUDE = "lanitude";
 	public static final String COLUMN_LONGNITUDE = "longnitude";
 
@@ -35,7 +36,7 @@ public class TailGateMessagesDataBase
 
 	
 	private static final String DATABASE_LOCATION_CREATE = "create table " + TABLE_LOCATION + "(" + COLUMN_LOCATION_ID + " integer primary key autoincrement, "
-			+ COLUMN_LOCATION_FACE_ID + " integer unique, "+ COLUMN_LANITUDE + " text, " + COLUMN_LONGNITUDE + " text" + ");";
+			+ COLUMN_LOCATION_FACE_ID + " integer unique, "+ COLUMN_LOCATION_FACE_NAME + " text, "+ COLUMN_LANITUDE + " text, " + COLUMN_LONGNITUDE + " text" + ");";
 
 	
 	
