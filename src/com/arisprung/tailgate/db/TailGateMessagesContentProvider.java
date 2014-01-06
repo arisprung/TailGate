@@ -229,7 +229,7 @@ public class TailGateMessagesContentProvider extends ContentProvider
 							selectionArgs);
 				}
 				break;
-			default:
+			default:		
 				throw new IllegalArgumentException("Unknown URI: " + uri);
 		}
 		getContext().getContentResolver().notifyChange(uri, null);
@@ -246,11 +246,16 @@ public class TailGateMessagesContentProvider extends ContentProvider
 			HashSet<String> requestedColumns = new HashSet<String>(Arrays.asList(projection));
 			HashSet<String> availableColumns = new HashSet<String>(Arrays.asList(available));
 			// Check if all columns which are requested are available
-			if (!availableColumns.containsAll(requestedColumns))
+			if (!availableColumns.containsAll(requestedColumns))	
 			{
 				throw new IllegalArgumentException("Unknown columns in projection");
 			}
 		}
+	}
+	
+	public void clearLoacationTable()   {
+		SQLiteDatabase db = database.getWritableDatabase();
+	    db.delete(TailGateMessagesDataBase.TABLE_LOCATION, null,null);
 	}
 
 }

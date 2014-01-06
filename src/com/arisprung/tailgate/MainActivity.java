@@ -12,10 +12,14 @@ import org.json.JSONObject;
 import android.app.ActionBar;
 import android.app.Activity;
 import android.content.BroadcastReceiver;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.res.Configuration;
 import android.content.res.TypedArray;
+import android.location.LocationManager;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.ActionBarDrawerToggle;
@@ -25,22 +29,31 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.widget.DrawerLayout;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.TextView;
 
 import com.arisprung.tailgate.adapter.NavDrawerListAdapter;
 import com.arisprung.tailgate.facebook.FacebookUser;
-import com.arisprung.tailgate.fragments.HomeFragment;
 import com.arisprung.tailgate.fragments.LeagueListFragment;
 import com.arisprung.tailgate.fragments.MapUserFragment;
 import com.arisprung.tailgate.fragments.MessageListFragment;
+import com.arisprung.tailgate.fragments.PrefsFragment;
 import com.arisprung.tailgate.fragments.SendMessageFragment;
 import com.arisprung.tailgate.gcm.ServerUtilities;
+import com.arisprung.tailgate.utilities.FacebookImageLoader;
+import com.arisprung.tailgate.utilities.TailGateUtility;
 import com.facebook.Request;
 import com.facebook.Response;
 import com.facebook.Session;
@@ -49,7 +62,6 @@ import com.facebook.UiLifecycleHelper;
 import com.facebook.model.GraphLocation;
 import com.facebook.model.GraphUser;
 import com.facebook.widget.LoginButton;
-import com.facebook.widget.ProfilePictureView;
 import com.google.android.gcm.GCMRegistrar;
 
 public class MainActivity extends FragmentActivity
@@ -59,14 +71,27 @@ public class MainActivity extends FragmentActivity
 	private ActionBarDrawerToggle mDrawerToggle;
 	private TailGateSharedPreferences mTailgateSharedPreferences = null;
 	private String TAG = MainActivity.class.toString();
+	private boolean bFirstRun = false;
+	private static final String MESSAGE_FRAGMENT_TAG = "message_tag";
+
+	private static final String AUTHORITY = "com.tailgate.contentprovider";
+	private static final String BASE_PATH_MESSAGES = "messages";
+	private static final String BASE_PATH_LOCATION = "location";
+	public static final Uri CONTENT_URI_MESSAGES = Uri.parse("content://" + AUTHORITY + "/" + BASE_PATH_MESSAGES);
+	public static final Uri CONTENT_URI_LOCATION = Uri.parse("content://" + AUTHORITY + "/" + BASE_PATH_LOCATION);
 	AsyncTask<Void, Void, Void> mRegisterTask;
 	// nav drawer title
 	private CharSequence mDrawerTitle;
-
+	private LinearLayout sendLinearLayout;
 	private LoginButton authButton;
-	private ProfilePictureView profilePic;
+	private ImageView profilePic;
+	private TextView selectTeamText;
+	private EditText editText;
+	private Button drawButton;
 	// used to store app title
 	private CharSequence mTitle;
+
+	private FacebookImageLoader mImageLoader;
 
 	// slide menu items
 	private String[] navMenuTitles;
@@ -84,16 +109,23 @@ public class MainActivity extends FragmentActivity
 	private Fragment[] fragments = new Fragment[FRAGMENT_COUNT];
 
 	private FacebookUser mUser = null;
+	private TextView emptyText;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
 	{
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.tailgate_main_activity);
+		bFirstRun = true;
+		// for (int i = 0; i < 500; i++)
+		// {
+		// addMessageDB();
+		//
+		// }
 		if (mTailgateSharedPreferences == null)
 			mTailgateSharedPreferences = TailGateSharedPreferences.getInstance(getApplicationContext());
 		mTitle = mDrawerTitle = getTitle();
-
+		mImageLoader = new FacebookImageLoader(getApplicationContext());
 		checkNotNull(SERVER_URL, "SERVER_URL");
 		checkNotNull(SENDER_ID, "SENDER_ID");
 		// ! Do unregister for debug; must remove on production
@@ -133,18 +165,7 @@ public class MainActivity extends FragmentActivity
 		mDrawerList = (ListView) findViewById(R.id.list_slidermenu);
 		LayoutInflater mInflater = (LayoutInflater) getSystemService(Activity.LAYOUT_INFLATER_SERVICE);
 		View footerView = mInflater.inflate(R.layout.drawer_item_face_login, null);
-		LoginButton loginBut = (LoginButton) footerView.findViewById(R.id.auth_button);
-//		loginBut.setOnClickListener(new OnClickListener() {
-//			
-//			;
-//
-//			@Override
-//			public void onClick(View v)
-//			{
-//				Log.i(TAG, " FaceBook login button was pressed");
-//				
-//			}
-//		});
+
 		mDrawerList.addFooterView(footerView);
 		navDrawerItems = new ArrayList<NavDrawerItem>();
 
@@ -156,20 +177,14 @@ public class MainActivity extends FragmentActivity
 		// Photos
 		navDrawerItems.add(new NavDrawerItem(navMenuTitles[2], navMenuIcons.getResourceId(2, -1)));
 		navDrawerItems.add(new NavDrawerItem(navMenuTitles[3], navMenuIcons.getResourceId(2, -1)));
-;
-		// Communities, Will add a counter here
-		// navDrawerItems.add(new NavDrawerItem(navMenuTitles[3], navMenuIcons.getResourceId(3, -1), true, "22"));
-		// // Pages
-		// navDrawerItems.add(new NavDrawerItem(navMenuTitles[4], navMenuIcons.getResourceId(4, -1)));
-		// // What's hot, We will add a counter here
-		// navDrawerItems.add(new NavDrawerItem(navMenuTitles[5], navMenuIcons.getResourceId(5, -1), true, "50+"));
+		navDrawerItems.add(new NavDrawerItem(navMenuTitles[4], navMenuIcons.getResourceId(2, -1)));
 
 		// Recycle the typed array
 		navMenuIcons.recycle();
 
-		FragmentManager fm = getSupportFragmentManager();
-		fragments[SPLASH] = new HomeFragment();
-		fragments[MESSAGELIST] = new MessageListFragment();
+		// FragmentManager fm = getSupportFragmentManager();
+		// fragments[SPLASH] = new HomeFragment();
+		// fragments[MESSAGELIST] = new MessageListFragment();
 
 		mDrawerList.setOnItemClickListener(new SlideMenuClickListener());
 
@@ -178,23 +193,22 @@ public class MainActivity extends FragmentActivity
 		mDrawerList.setAdapter(adapter);
 
 		// enabling action bar app icon and behaving it as toggle button
-		getActionBar().setDisplayHomeAsUpEnabled(true);
-		getActionBar().setHomeButtonEnabled(true);
 
 		mDrawerToggle = new ActionBarDrawerToggle(this, mDrawerLayout, R.drawable.ic_drawer, // nav menu toggle icon
 				R.string.app_name, // nav drawer open - description for accessibility
 				R.string.app_name // nav drawer close - description for accessibility
 		) {
+
 			public void onDrawerClosed(View view)
 			{
-				getActionBar().setTitle(mTitle);
+				// getActionBar().setTitle(mTitle);
 				// calling onPrepareOptionsMenu() to show action bar icons
 				invalidateOptionsMenu();
 			}
 
 			public void onDrawerOpened(View drawerView)
 			{
-				getActionBar().setTitle(mDrawerTitle);
+				// getActionBar().setTitle(mDrawerTitle);
 				// calling onPrepareOptionsMenu() to hide action bar icons
 				invalidateOptionsMenu();
 			}
@@ -205,12 +219,36 @@ public class MainActivity extends FragmentActivity
 
 		// Set up your ActionBar
 		final ActionBar actionBar = getActionBar();
-		// actionBar.setDisplayShowHomeEnabled(false);
-		// actionBar.setDisplayShowTitleEnabled(false);
+		//
 		actionBar.setDisplayShowCustomEnabled(true);
 		actionBar.setCustomView(actionBarLayout);
+
+		actionBar.setDisplayHomeAsUpEnabled(false);
+		actionBar.setDisplayShowHomeEnabled(false);
+		actionBar.setDisplayShowTitleEnabled(false);
+		actionBar.setDisplayUseLogoEnabled(false);
 		authButton = (LoginButton) findViewById(R.id.auth_button);
-		profilePic = (ProfilePictureView) findViewById(R.id.selection_profile_pic);
+		selectTeamText = (TextView) findViewById(R.id.selected_team_text);
+		drawButton = (Button) findViewById(R.id.drawer_icon);
+		drawButton.setOnClickListener(new OnClickListener() {
+
+			@Override
+			public void onClick(View v)
+			{
+
+				if (mDrawerLayout.isDrawerOpen(Gravity.LEFT))
+				{
+					mDrawerLayout.closeDrawer(Gravity.LEFT);
+				}
+				else
+				{
+					mDrawerLayout.openDrawer(Gravity.LEFT);
+				}
+
+			}
+		});
+
+		profilePic = (ImageView) findViewById(R.id.selection_profile_pic);
 		profilePic.setVisibility(View.INVISIBLE);
 		authButton.setReadPermissions(Arrays.asList("email", "user_location"));
 		// authButton.callOnClick();
@@ -232,6 +270,7 @@ public class MainActivity extends FragmentActivity
 		{
 			onSessionStateChange(session, state, exception);
 		}
+
 	};
 
 	private void onSessionStateChange(Session session, SessionState state, Exception exception)
@@ -251,16 +290,17 @@ public class MainActivity extends FragmentActivity
 			{
 				// If the session state is open:
 				// Show the authenticated fragment
-				showFragment(MESSAGELIST, false);
+				// showFragment(MESSAGELIST, false);
 				logInFacebookView();
 			}
 			else if (state.isClosed())
 			{
 
 				logOutFacebookView();
+
 				// If the session state is closed:
 				// Show the login fragment
-				showFragment(SPLASH, false);
+				// showFragment(SPLASH, false);
 			}
 		}
 	}
@@ -269,6 +309,20 @@ public class MainActivity extends FragmentActivity
 	public void onResume()
 	{
 		super.onResume();
+		registerReceiver(teamChangeReciever, new IntentFilter("Team_Selected"));
+
+		Fragment messageFragment = getSupportFragmentManager().findFragmentByTag(MESSAGE_FRAGMENT_TAG);
+		if (messageFragment != null)
+		{
+
+			if (messageFragment.isVisible())
+			{
+				emptyText = (TextView) messageFragment.getView().findViewById(R.id.empty_text);
+				editText = (EditText) messageFragment.getView().findViewById(R.id.editText);
+				sendLinearLayout = (LinearLayout) messageFragment.getView().findViewById(R.id.send_ll);
+			}
+		}
+
 		Session session = Session.getActiveSession();
 
 		if (session != null && session.isOpened())
@@ -276,7 +330,7 @@ public class MainActivity extends FragmentActivity
 			// Get the user's data
 			logInFacebookView();
 			makeMeRequest(session);
-			
+
 		}
 		else
 		{
@@ -285,13 +339,14 @@ public class MainActivity extends FragmentActivity
 		}
 		uiHelper.onResume();
 		isResumed = true;
+
 	}
 
 	private void registerForGCM()
 	{
 
 		// registerReceiver(mHandleMessageReceiver, new IntentFilter(DISPLAY_MESSAGE_ACTION));
-		final String regId = GCMRegistrar.getRegistrationId(this);
+		final String regId = GCMRegistrar.getRegistrationId(getApplicationContext());
 		if (regId.equals(""))
 		{
 			// Automatically registers application on startup.
@@ -320,13 +375,13 @@ public class MainActivity extends FragmentActivity
 						boolean registered = ServerUtilities.register(context, regId);
 						// At this point all attempts to register with the app
 						// server failed, so we need to unregister the device
-						// from GCM - the app will try to register again when
+						// from - the app will try to register again when
 						// it is restarted. Note that GCM will send an
 						// unregistered callback upon completion, but
 						// GCMIntentService.onUnregistered() will ignore it.
 						if (!registered)
 						{
-							GCMRegistrar.unregister(context);
+							GCMRegistrar.unregister(getApplicationContext());
 						}
 						return null;
 					}
@@ -371,6 +426,7 @@ public class MainActivity extends FragmentActivity
 	{
 		super.onDestroy();
 		uiHelper.onDestroy();
+		unregisterReceiver(teamChangeReciever);
 	}
 
 	@Override
@@ -433,8 +489,9 @@ public class MainActivity extends FragmentActivity
 		// Handle action bar actions click
 		switch (item.getItemId())
 		{
-			case R.id.action_settings:
-				return true;
+		// case R.id.action_settings:
+		// showprefScreen();
+		// return true;
 			default:
 				return super.onOptionsItemSelected(item);
 		}
@@ -448,7 +505,7 @@ public class MainActivity extends FragmentActivity
 	{
 		// if nav drawer is opened, hide the action items
 		boolean drawerOpen = mDrawerLayout.isDrawerOpen(mDrawerList);
-		menu.findItem(R.id.action_settings).setVisible(!drawerOpen);
+		// menu.findItem(R.id.action_settings).setVisible(!drawerOpen);
 		return super.onPrepareOptionsMenu(menu);
 	}
 
@@ -459,27 +516,38 @@ public class MainActivity extends FragmentActivity
 	{
 		// update the main content by replacing fragments
 		Fragment fragment = null;
+		String tag = "";
 
 		switch (position)
 		{
 
 			case 0:
-				 fragment = new MessageListFragment();
-				
+				fragment = new MessageListFragment();
+				tag = MESSAGE_FRAGMENT_TAG;
 				break;
 			case 1:
 				fragment = new LeagueListFragment();
+				tag = "league";
 				break;
 			case 2:
-				 fragment = new SendMessageFragment();
+				tag = "send";
+				fragment = new SendMessageFragment();
 				break;
 			case 3:
+				LocationManager manager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+				if (!manager.isProviderEnabled(LocationManager.GPS_PROVIDER))
+				{
+					TailGateUtility.buildAlertMessageNoGps(MainActivity.this);
+					return;
+				}
+				tag = "map";
 
-				 fragment = new MapUserFragment();
+				fragment = new MapUserFragment();
+
 				break;
 			case 4:
-				// fragment = new WhatsHotFragment();
-				break;
+				showprefScreen();
+				return;
 
 			default:
 				break;
@@ -488,7 +556,17 @@ public class MainActivity extends FragmentActivity
 		if (fragment != null)
 		{
 			FragmentManager fragmentManager = getSupportFragmentManager();
-			fragmentManager.beginTransaction().replace(R.id.frame_container, fragment).commit();
+			FragmentTransaction ft = fragmentManager.beginTransaction().replace(R.id.frame_container, fragment, tag);
+			if (bFirstRun == true)
+			{
+				bFirstRun = false;
+			}
+			else
+			{
+				ft.addToBackStack(tag);
+			}
+
+			ft.commit();
 
 			// update selected item and title, then close the drawer
 			mDrawerList.setItemChecked(position, true);
@@ -501,6 +579,26 @@ public class MainActivity extends FragmentActivity
 			// error in creating fragment
 			Log.e("MainActivity", "Error in creating fragment");
 		}
+	}
+
+	private void showprefScreen()
+	{
+		getFragmentManager().beginTransaction().replace(R.id.frame_container, new PrefsFragment()).commit();
+		String tag = "pref";
+		Fragment prefFragment = new Fragment();
+		FragmentManager fragmentManager = getSupportFragmentManager();
+		FragmentTransaction ft = fragmentManager.beginTransaction().replace(R.id.frame_container, prefFragment, tag);
+
+		ft.addToBackStack(tag);
+
+		ft.commit();
+
+		// update selected item and title, then close the drawer
+		mDrawerList.setItemChecked(4, true);
+		mDrawerList.setSelection(4);
+		setTitle(navMenuTitles[4]);
+		mDrawerLayout.closeDrawer(mDrawerList);
+
 	}
 
 	@Override
@@ -546,11 +644,11 @@ public class MainActivity extends FragmentActivity
 					{
 						// Set the id for the ProfilePictureView
 						// view that in turn displays the profile picture.
-						profilePic.setProfileId(user.getId());
-						;
+						// profilePic.setProfileId(user.getId());
+						mImageLoader.load(user.getId(), profilePic);
 						// Set the Textview's text to the user's name.
 						// userNameView.setText(user.getName());
-					
+
 						mTailgateSharedPreferences.putStringSharedPreferences(TailGateSharedPreferences.FACEBOOK_ID, user.getId());
 						mTailgateSharedPreferences.putStringSharedPreferences(TailGateSharedPreferences.FACEBOOK_EMAIL,
 								(String) user.getProperty("email"));
@@ -558,7 +656,6 @@ public class MainActivity extends FragmentActivity
 						mTailgateSharedPreferences.putStringSharedPreferences(TailGateSharedPreferences.FACEBOOK_NAME, user.getUsername());
 						mTailgateSharedPreferences.putStringSharedPreferences(TailGateSharedPreferences.FACEBOOK_FIRST_NAME, user.getFirstName());
 						mTailgateSharedPreferences.putStringSharedPreferences(TailGateSharedPreferences.FACEBOOK_LAST_NAME, user.getLastName());
-				
 
 						// String name = user.getUsername();
 						// String strId = user.getId();
@@ -566,10 +663,10 @@ public class MainActivity extends FragmentActivity
 						// String strBirthday = user.getBirthday();
 						GraphLocation location = user.getLocation();
 						String strCity = "";
-						if(location != null)
+						if (location != null)
 						{
 							JSONObject json = location.getInnerJSONObject();
-							
+
 							try
 							{
 								strCity = json.getString("name");
@@ -582,33 +679,40 @@ public class MainActivity extends FragmentActivity
 							}
 						}
 
-						
 						// FacebookUser faceuser = new FacebookUser(name, strId, strEmail, strCity);
 						// mUser = faceuser;
 						mTailgateSharedPreferences.putStringSharedPreferences(TailGateSharedPreferences.FACEBOOK_LOCATION, strCity);
 						registerForGCM();
-						String strTeam = mTailgateSharedPreferences.getStringSharedPreferences(TailGateSharedPreferences.SELECTED_TEAM, "");
-						String strFacID = mTailgateSharedPreferences.getStringSharedPreferences(TailGateSharedPreferences.FACEBOOK_ID, "");
-						if(strTeam.equals("") || strFacID.equals(""))
-						{
-
-							 if(strFacID.equals(""))
-							{
-								
-								TailGateUtility.showAuthenticatedDialog(MainActivity.this,"Please Login","First login in order to see messages.");
-								
-							}
-							 else if(strTeam.equals(""))
-							{
-								TailGateUtility.showAuthenticatedDialog(MainActivity.this,"Select Team","Please select a team in order to see messages.");
-							}
-						}
+						// String strTeam = mTailgateSharedPreferences.getStringSharedPreferences(TailGateSharedPreferences.SELECTED_TEAM, "");
+						// String strFacID = mTailgateSharedPreferences.getStringSharedPreferences(TailGateSharedPreferences.FACEBOOK_ID, "");
+						// if (strTeam.equals("") || strFacID.equals(""))
+						// {
+						//
+						// if (strFacID.equals(""))
+						// {
+						//
+						// TailGateUtility.showAuthenticatedDialog(MainActivity.this, "Please Login", "First login in order to see messages.");
+						//
+						// }
+						// else if (strTeam.equals(""))
+						// {
+						// TailGateUtility.showAuthenticatedDialog(MainActivity.this, "Select Team",
+						// "Please select a team in order to see messages.");
+						// }
+						// }
 					}
 				}
 				if (response.getError() != null)
 				{
 					Log.e("MainActivity", "Error -- " + response.getError());
 				}
+
+				sendBroadcast(new Intent("change_view"));
+				// Fragment messageFragment = getSupportFragmentManager().findFragmentByTag(MESSAGE_FRAGMENT_TAG);
+				// if(messageFragment.isVisible() )
+				// {
+				// TailGateUtility.initMessageListView(emptyText,sendLinearLayout,mTailgateSharedPreferences);
+				// }
 
 			}
 		});
@@ -629,12 +733,59 @@ public class MainActivity extends FragmentActivity
 	{
 		profilePic.setVisibility(View.VISIBLE);
 		authButton.setVisibility(View.GONE);
+		selectTeamText.setVisibility(View.VISIBLE);
+		setTextTeam();
 	}
 
 	private void logOutFacebookView()
 	{
 		profilePic.setVisibility(View.GONE);
 		authButton.setVisibility(View.VISIBLE);
+		selectTeamText.setVisibility(View.GONE);
 	}
 
+	private void addMessageDB()
+	{
+		long currentTime = System.currentTimeMillis();
+
+		try
+		{
+			ContentValues contentValues = new ContentValues();
+			contentValues.put("message_date", currentTime);
+			contentValues.put("message_face_id", "1008591997");
+			contentValues.put("message", "test");
+			contentValues.put("message_face_name", "test");
+
+			getContentResolver().insert(CONTENT_URI_MESSAGES, contentValues);
+		}
+		catch (Exception e)
+		{
+			e.printStackTrace();
+		}
+
+	}
+
+	private BroadcastReceiver teamChangeReciever = new BroadcastReceiver() {
+
+		@Override
+		public void onReceive(Context context, Intent intent)
+		{
+			setTextTeam();
+		}
+	};
+
+	private void setTextTeam()
+	{
+		String strTeam = mTailgateSharedPreferences.getStringSharedPreferences(TailGateSharedPreferences.SELECTED_TEAM, "");
+		if (!strTeam.equals(""))
+		{
+			selectTeamText.setText(strTeam + " selected");
+		}
+	}
+	//
+	// @Override
+	// public void onBackPressed()
+	// {
+	// getFragmentManager().popBackStack();
+	// }
 }

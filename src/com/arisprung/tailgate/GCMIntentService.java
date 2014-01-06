@@ -32,14 +32,19 @@ import android.app.PendingIntent;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
+import android.preference.CheckBoxPreference;
+import android.preference.PreferenceManager;
 import android.util.Log;
 
 import com.arisprung.tailgate.db.TailGateMessagesDataBase;
 import com.arisprung.tailgate.gcm.JsonUtil;
 import com.arisprung.tailgate.gcm.ServerUtilities;
+import com.arisprung.tailgate.utilities.TailGateUtility;
 import com.google.android.gcm.GCMBaseIntentService;
 import com.google.android.gcm.GCMRegistrar;
 
@@ -54,6 +59,9 @@ public class GCMIntentService extends GCMBaseIntentService
 	private static final String AUTHORITY = "com.tailgate.contentprovider";
 	private static final String BASE_PATH_MESSAGES = "messages";
 	private static final String BASE_PATH_LOCATION = "location";
+	private String firstMessage = null;
+	private CheckBoxPreference notifyCheckBox;
+	long time;
 	public static final Uri CONTENT_URI_MESSAGES = Uri.parse("content://" + AUTHORITY + "/" + BASE_PATH_MESSAGES);
 	public static final Uri CONTENT_URI_LOCATION = Uri.parse("content://" + AUTHORITY + "/" + BASE_PATH_LOCATION);
 	private TailGateSharedPreferences mTailgateSharedPreferences = null;
@@ -62,8 +70,6 @@ public class GCMIntentService extends GCMBaseIntentService
 	{
 		super(SENDER_ID);
 	}
-	
-	
 
 	@Override
 	protected void onRegistered(Context context, String registrationId)
@@ -71,9 +77,9 @@ public class GCMIntentService extends GCMBaseIntentService
 		Log.i(TAG, "Device registered: regId = " + registrationId);
 		if (mTailgateSharedPreferences == null)
 			mTailgateSharedPreferences = TailGateSharedPreferences.getInstance(getApplicationContext());
-		
+
 		mTailgateSharedPreferences.putStringSharedPreferences(TailGateSharedPreferences.REG_ID, registrationId);
-		
+
 		displayMessage(context, getString(R.string.gcm_registered));
 		ServerUtilities.register(context, registrationId);
 	}
@@ -114,19 +120,29 @@ public class GCMIntentService extends GCMBaseIntentService
 		}
 		catch (JSONException e)
 		{
-			// TODO Auto-generated catch block
+
 			e.printStackTrace();
 		}
 
 		MessageBean message = JsonUtil.parseJsonToMessageBean(jObj);
-
 		addMessageDB(message);
-		if (!message.getFaceID().equals(mTailgateSharedPreferences.getStringSharedPreferences(TailGateSharedPreferences.FACEBOOK_ID, "")))
+		if (!message.getFaceID().equals(mTailgateSharedPreferences.getStringSharedPreferences
+				(TailGateSharedPreferences.FACEBOOK_ID, "")))
 		{
-			generateNotification(context, message.getMessage());
+			SharedPreferences mySharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
+			boolean notify_checkbox_preference = mySharedPreferences.getBoolean("notification_preference", false);
+			if (notify_checkbox_preference)
+			{
+				generateNotification(context, message);	
+			}
+			
 		}
 
-		parseLocationJSON(jObj);
+		if (jObj.has("json_array_location"))
+		{
+			parseLocationJSON(jObj);
+		}
+
 	}
 
 	@Override
@@ -136,7 +152,7 @@ public class GCMIntentService extends GCMBaseIntentService
 		String message = getString(R.string.gcm_deleted, total);
 		displayMessage(context, message);
 		// notifies user
-		generateNotification(context, message);
+		//generateNotification(context, message);
 	}
 
 	@Override
@@ -165,8 +181,6 @@ public class GCMIntentService extends GCMBaseIntentService
 			e.printStackTrace();
 		}
 
-		return;
-
 	}
 
 	@Override
@@ -181,26 +195,54 @@ public class GCMIntentService extends GCMBaseIntentService
 	/**
 	 * Issues a notification to inform the user that server has sent a message.
 	 */
-	private static void generateNotification(Context context, String message)
+	private static void generateNotification(Context context, MessageBean message)
 	{
+//		Intent notificationIntent = new Intent(ctx, MainActivity.class);
+//		PendingIntent contentIntent = PendingIntent.getActivity(ctx,
+//		        10, notificationIntent,
+//		        PendingIntent.FLAG_CANCEL_CURRENT);
+//
+//		NotificationManager nm = (NotificationManager) ctx
+//		        .getSystemService(Context.NOTIFICATION_SERVICE);
+//
+//		Resources res = ctx.getResources();
+//		Notification.Builder builder = new Notification.Builder(ctx);
+//		
+//		Bitmap profile = TailGateUtility.getUserPic(message.getFaceID());
+//
+//		builder.setContentIntent(contentIntent)
+//		            .setSmallIcon(R.drawable.ic_launcher)
+//		            .setLargeIcon(profile)
+//		            .setTicker(res.getString(R.string.app_name))
+//		            .setWhen(System.currentTimeMillis())
+//		            .setAutoCancel(true)
+//		            .setContentTitle(message.getUserName())
+//		            .setContentText(message.getMessage());
+//		Notification n = builder.build();
+//
+//		nm.notify(0, n);
 		int icon = R.drawable.ic_launcher;
 		long when = System.currentTimeMillis();
 		NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
-		Notification notification = new Notification(icon, message, when);
+		Notification notification = new Notification(icon, message.getMessage(), when);
+		
 		String title = context.getString(R.string.app_name);
 		Intent notificationIntent = new Intent(context, MainActivity.class);
 		// set intent so it does not start a new activity
 		notificationIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
 		PendingIntent intent = PendingIntent.getActivity(context, 0, notificationIntent, 0);
-		notification.setLatestEventInfo(context, title, message, intent);
+		notification.setLatestEventInfo(context, title, message.getMessage(), intent);
 		notification.flags |= Notification.FLAG_AUTO_CANCEL;
 		notificationManager.notify(0, notification);
+		
+	
 	}
 
 	private void parseLocationJSON(JSONObject jObj)
 	{
 		try
 		{
+			getContentResolver().delete(CONTENT_URI_LOCATION, null, null);
 			JSONArray array = jObj.getJSONArray("json_array_location");
 
 			for (int i = 0; i < array.length(); i++)
@@ -210,18 +252,16 @@ public class GCMIntentService extends GCMBaseIntentService
 				String logn = childJSONObject.getString("lognitude");
 				String lati = childJSONObject.getString("latitude");
 				String name = childJSONObject.getString("user");
-				
-				
+
 				ContentValues contentValues = new ContentValues();
-				
-				
-				contentValues.put(TailGateMessagesDataBase.COLUMN_LOCATION_FACE_ID,faceID);
-				contentValues.put(TailGateMessagesDataBase.COLUMN_LOCATION_FACE_NAME,name);
-				contentValues.put(TailGateMessagesDataBase.COLUMN_LONGNITUDE,logn);
-				contentValues.put(TailGateMessagesDataBase.COLUMN_LANITUDE,lati);
+
+				contentValues.put(TailGateMessagesDataBase.COLUMN_LOCATION_FACE_ID, faceID);
+				contentValues.put(TailGateMessagesDataBase.COLUMN_LOCATION_FACE_NAME, name);
+				contentValues.put(TailGateMessagesDataBase.COLUMN_LONGNITUDE, logn);
+				contentValues.put(TailGateMessagesDataBase.COLUMN_LANITUDE, lati);
 				
 				getContentResolver().insert(CONTENT_URI_LOCATION, contentValues);
-				
+
 			}
 		}
 		catch (JSONException e)
@@ -231,7 +271,5 @@ public class GCMIntentService extends GCMBaseIntentService
 		}
 
 	}
-	
-	
 
 }

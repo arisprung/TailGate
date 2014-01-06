@@ -5,7 +5,7 @@
     android:background="@drawable/list_selector">
 
      <com.facebook.widget.LoginButton
-        android:id="@+id/auth_button"
+        android:id="@+id/auth_button_drawer"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
       />

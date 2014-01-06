@@ -6,15 +6,16 @@ import com.arisprung.tailgate.MainActivity;
 import com.arisprung.tailgate.MessageBean;
 import com.arisprung.tailgate.R;
 import com.arisprung.tailgate.TailGateSharedPreferences;
-import com.arisprung.tailgate.TailGateUtility;
 import com.arisprung.tailgate.TailgateConstants;
 import com.arisprung.tailgate.adapter.TeamListAdapter;
 import com.arisprung.tailgate.db.TailGateMessagesDataBase;
 
 import com.arisprung.tailgate.gcm.ServerUtilities;
+import com.arisprung.tailgate.utilities.TailGateUtility;
 import com.google.android.gcm.GCMRegistrar;
 
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.database.Cursor;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -73,7 +74,7 @@ public class TeamListFragment extends Fragment
 
 		try
 		{
-			View view = inflater.inflate(R.layout.list_view, container, false);
+			View view = inflater.inflate(R.layout.team_list_view, container, false);
 
 			return view;
 		}
@@ -94,7 +95,7 @@ public class TeamListFragment extends Fragment
 		// adapter = new TeamListAdapter(getActivity().getApplicationContext(), R.layout.list_checkbox_item, mTeamList);
 		ArrayAdapter<String> adapter = new ArrayAdapter<String>(getActivity().getApplicationContext(),
 				android.R.layout.simple_list_item_multiple_choice, mTeamList);
-		listView = (ListView) getView().findViewById(R.id.list);
+		listView = (ListView) getView().findViewById(R.id.team_list);
 		listView.setAdapter(adapter);
 		listView.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
 		listView.setTextFilterEnabled(true);
@@ -140,6 +141,8 @@ public class TeamListFragment extends Fragment
 							strTeamSelected = mTeamList[position];
 							strLeagueSelected = MainActivity.mLeagueSelected;
 							sendDataToServer(position);
+							sendBroadCastTeamChanged();
+						
 						}
 						else
 						{
@@ -162,6 +165,7 @@ public class TeamListFragment extends Fragment
 								strLeagueSelected = MainActivity.mLeagueSelected;
 								Toast.makeText(getActivity(), strTeamSelected + " Selected....", Toast.LENGTH_SHORT).show();
 								sendDataToServer(position);
+								sendBroadCastTeamChanged();
 
 							}
 
@@ -199,7 +203,7 @@ public class TeamListFragment extends Fragment
 	private void sendDataToServer(int position)
 	{
 
-		String strRegisterID = GCMRegistrar.getRegistrationId(getActivity());
+		String strRegisterID = GCMRegistrar.getRegistrationId(getActivity().getApplicationContext());
 		if (strRegisterID != null)
 		{
 
@@ -217,5 +221,13 @@ public class TeamListFragment extends Fragment
 			strLeagueSelected = "";
 		}
 
+	}
+	
+	private void sendBroadCastTeamChanged()
+	{
+	
+		getActivity().sendBroadcast(new Intent("change_view"));
+		getActivity().sendBroadcast(new Intent("Team_Selected"));
+		
 	}
 }

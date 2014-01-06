@@ -12,12 +12,15 @@ public class JsonUtil
 	{
 
 		MessageBean mBean = null;
+		
 
 		try
 		{
 			String strFaceId = jobj.getString("id");
 			String strMessage = jobj.getString("message");
 			String strName = jobj.getString("username");
+		
+			
 
 			mBean = new MessageBean(strFaceId, strMessage, strName);
 		}

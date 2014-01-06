@@ -55,18 +55,147 @@ public class TailgateConstants
 	
 	///////////////////////////////////////////////////////////////////////////////////
 	
-	public static String[] NFL_LIST = { "Dolphins", "Chiefs", "Lions", "Redskins" , "Jets", "Patriots", "Bills", "Jaguars","Titans", "Bucaneers",
-		"Packers", "Eagles" , "Saints", "Ravens", "Giants", "Cowboys" };
+	public static String[] NFL_LIST = { "Testing",
+										"Arizona Cardinals",
+										"Atlanta Falcons", 
+										"Baltimore Ravens", 
+										"Buffalo Bills" , 
+										"Carolina Panthers",
+										"Chicago Bears", 
+										"Cincinnati Bengals", 
+										"Cleveland Browns",
+										"Dallas Cowboys", 
+										"Denver Broncos",
+										"Detroit Lions ", 
+										"Green Bay Packers " ,
+										"Houston Texans", 
+										"Indianapolis Colts ", 
+										"Jacksonville Jaguars", 
+										"Kansas City Chiefs",
+										"Miami Dolphins",
+										"Minnesotta Vikings", 
+										"New England Patriots" ,
+										"New Orleans Saints", 
+										"New York Jets" , 
+										"Oakland Raiders ", 
+										"Philadelphia Eagles",
+										"Pittsburgh Steelers",
+										"San Diego Chargers", 
+										"San Francisco 49ers",
+										"Seattle Seahawks ",
+										"Tampa Bay Buccaneers",
+										"Tennessee Titans", 
+										"Washington Redskins"};
+		 
+	
+	public static String[] NBA_LIST = { "Atlanta Hawks",
+										"Boston Celtics ",
+										"Brooklyn Nets", 
+										"Charlotte Bobcats", 
+										"Chicago Bulls" , 
+										"Cleveland Cavaliers",
+										"Dallas Mavericks", 
+										"Denver Nuggets", 
+										"Detroit Pistons",
+										"Houston Rockets", 
+										"Indiana Pacers",
+										"LA Clippers", 
+										"LA Lakers" ,
+										"Memphis Grizzlies", 
+										"Miami Heat", 
+										"Milwaukee Bucks", 
+										"Minnesota Timberwolves",
+										"New Orleans Pelicans",
+										"New York Knicks", 
+										"Oklahoma City Thunder" ,
+										"Orlando Magic", 
+										"Philadelphia Sixers" , 
+										"Phoenix Suns", 
+										"Portland Trail Blazers",
+										"Sacramento Kings",
+										"San Antonio Spurs", 
+										"Toronto Raptors",
+										"Washington Wizards",};
+	
+	 
+	 
+	 
+	public static String[] MLB_LIST = { "Arizona Diamondbacks",
+										"Atlanta Braves",
+										"Baltimore Orioles", 
+										"Boston Red Sox", 
+										"Chicago White Sox" , 
+										"Colorado Rockies",
+										"Cinncinnati Reds", 
+										"Cleveland Indians", 
+										"Detroit Tigers",
+										"Florida Marlins", 
+										"Houston Astros",
+										"Kansas City Royals", 
+										"Los Angeles Angels" ,
+										"Los Angeles Dodgers", 
+										"Milwaukee Brewers", 
+										"Minnesota Twins", 
+										"New York Mets",
+										"New York Yankees",
+										"Oakland Athletics", 
+										"Philadelphia Phillies" ,
+										"Pittsburgh Pirates", 
+										"San Diego Padres" , 
+										"San Francisco Giants", 
+										"Seattle Mariners",
+										"St. Louis Cardinals",
+										"Tampa Bay Rays", 
+										"Texas Rangers",
+										"Toronto Blue Jays",
+										"Washington Nationals"};
+	 
+	public static String[] NHL_LIST = { "Anaheim Ducks",
+										"Atlanta Thrashers",
+										"Boston Bruins", 
+										"Buffalo Sabres", 
+										"Calgary Flames" , 
+										"Carolina Hurricanes",
+										"Chicago Blackhawks", 
+										"Colorado Avalanche ", 
+										"Columbus Blue Jackets",
+										"Detroit Red Wings", 
+										"Edmonton Oilers",
+										"Florida Panthers", 
+										"Los Angeles Kings" ,
+										"Minnesota Wild", 
+										"Montreal Canadiens", 
+										"Nashville Predators", 
+										"New Jersey Devils",
+										"New York Islanders",
+										"New York Rangers", 
+										"Ottawa Senators" ,
+										"Philadelphia Flyers", 
+										"Phoenix Coyotes" , 
+										"Pittsburgh Penguins", 
+										"Saint Louis Blues",
+										"San Jose Sharks",
+										"Tampa Bay Lightning", 
+										"Toronto Maple Leafs",
+										"Vancouver Canucks",
+										"Washington Capitals"};
+	 
+	 
+	
+	 
+	
+	 
 	
 	
+	 
+	 
 	
 	
-	public static String[] NBA_LIST = { "Heat", "Spurs", "Pacers", "Pistons" ,"Knicks", "Lakers", "Suns", "Wizards","Raptors", "Kings", "Cavaliers", 
-		"Celtics" ,"Bulls", "Nets", "Sixers", "Nuggets"  };
+
 	
 	
-	public static String[] MLB_LIST = { "Marlins", "Yankees", "Tigers", "Pirates" };
-	public static String[] NHL_LIST = { "Panthers", "Rangers", "Sharks", "Penguins" };
+	//public static String[] MLB_LIST = { "Marlins", "Yankees", "Tigers", "Pirates" };
+	//public static String[] NHL_LIST = { "Panthers", "Rangers", "Sharks", "Penguins" };
 	
 	public static final String NBA                 = "NBA";
 	public static final String NFL                 = "NFL";

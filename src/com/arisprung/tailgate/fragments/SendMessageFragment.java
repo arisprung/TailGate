@@ -2,23 +2,22 @@ package com.arisprung.tailgate.fragments;
 
 
 
-import android.app.AlertDialog;
-import android.content.DialogInterface;
-import android.os.AsyncTask;
+import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.Toast;
 
-import com.arisprung.tailgate.MainActivity;
 import com.arisprung.tailgate.R;
 import com.arisprung.tailgate.TailGateSharedPreferences;
-import com.arisprung.tailgate.gcm.ServerUtilities;
+import com.arisprung.tailgate.utilities.TailGateUtility;
+import com.facebook.Session;
+
 
 
 public class SendMessageFragment extends Fragment
@@ -55,7 +54,7 @@ public class SendMessageFragment extends Fragment
 		super.onCreate(savedInstanceState);
 		
 		if (mTailgateSharedPreferences == null)
-			mTailgateSharedPreferences = TailGateSharedPreferences.getInstance(getActivity());
+			mTailgateSharedPreferences = TailGateSharedPreferences.getInstance(getActivity().getApplicationContext());
 	}
 	
 	
@@ -69,87 +68,67 @@ public class SendMessageFragment extends Fragment
 			@Override
 			public void onClick(View v)
 			{
-				if (!messageEditText.getText().toString().equals("") && (messageEditText.getText().length() < 140))
-				{
-					String strTeam = mTailgateSharedPreferences.getStringSharedPreferences(TailGateSharedPreferences.SELECTED_TEAM, "");
-					String strFacID = mTailgateSharedPreferences.getStringSharedPreferences(TailGateSharedPreferences.FACEBOOK_ID, "");
-					if(strTeam.equals("") || strFacID.equals(""))
-					{
-						if(strTeam.equals(""))
-						{
-							showDialog("Select Team","Please select a team in order to send messages.");
-						}
-						else if(strFacID.equals(""))
-						{
-							showDialog("Please Login","First login in order to send messages.");
-						}
-						
-						
-						
-						
-					}
-					else
-					{
-						SendMessageAsyncTaskLoader loadAsyncTask = new SendMessageAsyncTaskLoader();
-						loadAsyncTask.execute();
-					}
-					
-					
-			
-				}
-				else
-				{
-					showDialog("Empty Text","Text cant be empty.");
-				}
-
+				TailGateUtility.sendMessageToServer(getActivity(),messageEditText, mTailgateSharedPreferences);
 			}
 
 		});
 
 	}
 	
-	private class SendMessageAsyncTaskLoader extends AsyncTask<Void, Void, Void>
-	{
-
-		@Override
-		protected Void doInBackground(Void... params)
-		{
-			String strMessage = messageEditText.getText().toString();
-			ServerUtilities.sendMessageToServer(getActivity(),strMessage);
-			
-			return null;
-		}
-		
-		@Override
-		protected void onPostExecute(Void result)
-		{
-			// TODO Auto-generated method stub
-			super.onPostExecute(result);
-			messageEditText.setText("");
-		}
-
-		
-		
+//	private class SendMessageAsyncTaskLoader extends AsyncTask<String, Void, Void>
+//	{
+//		
+//		@Override
+//		protected void onPreExecute()
+//		{
+//			// TODO Auto-generated method stub
+//			super.onPreExecute();
+//			String strMessage = messageEditText.getText().toString();
+//			messageEditText.setText("");
+//			//doInBackground(strMessage);
+//			
+//				
+//		}
+//
+//		@Override
+//		protected Void doInBackground(String... params)
+//		{
+//			//
+//			ServerUtilities.sendMessageToServer(getActivity(),params[0]);
+//			
+//			return null;
+//		}
+//		
+//		@Override
+//		protected void onPostExecute(Void result)
+//		{
+//			// TODO Auto-generated method stub
+//			super.onPostExecute(result);
+//			
+//		}
+//
+//		
+//		
+//	
+//	}
 	
-	}
-	
-	private void showDialog(String title,String strText)
-	{
-		AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-		builder.setTitle(title);
-		builder.setMessage(strText);
-		
-		builder.setNeutralButton("OK", new DialogInterface.OnClickListener() {
-			@Override
-			public void onClick(DialogInterface arg0, int arg1) {
-				// TODO Auto-generated method stub
-				//Toast.makeText(getActivity(), "Close is clicked", Toast.LENGTH_LONG).show();
-				
-			}
-		});
-		builder.show(); //To show the AlertDialog
-	}
-
+//	private void showDialog(String title,String strText)
+//	{
+//		AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+//		builder.setTitle(title);
+//		builder.setMessage(strText);
+//		
+//		builder.setNeutralButton("OK", new DialogInterface.OnClickListener() {
+//			@Override
+//			public void onClick(DialogInterface arg0, int arg1) {
+//				// TODO Auto-generated method stub
+//				//Toast.makeText(getActivity(), "Close is clicked", Toast.LENGTH_LONG).show();
+//				
+//			}
+//		});
+//		builder.show(); //To show the AlertDialog
+//	}
+//
 
 
 }

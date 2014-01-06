@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <declare-styleable name="com.uiyou.views.HorizontalSlider">
+        <attr format="dimension" name="slideWidth" />
+    </declare-styleable>
+    
+    <declare-styleable name="com.uiyou.views.VerticalSlider">
+        <attr format="dimension" name="slideHeight" />
+    </declare-styleable>
+    
+    <declare-styleable name="com.uiyou.controller.SliderController">
+        <attr format="color" name="barColor" />
+        <attr format="color" name="highlightColor" />
+        <attr format="integer" name="fadeDelay" />
+        <attr format="integer" name="fadeDuration" />
+        <attr format="dimension" name="roundRectRadius" />
+    </declare-styleable>
+
+    
+    <!--  <declare-styleable name="CustomAttrs">
+        <attr name="xattr" format="string" />
+    </declare-styleable> -->
+    
+    
+    <declare-styleable name="RoundedImageView">
+        <attr name="corner_radius" format="dimension" />
+        <attr name="border_width" format="dimension" />
+        <attr name="border_color" format="color" />
+        <attr name="round_background" format="boolean" />
+        <attr name="is_oval" format="boolean" />
+        <attr name="inner_image_size" format="dimension" />
+        <attr name="android:scaleType" />
+    </declare-styleable>
+    
+    <declare-styleable name="CustomTextView">
+        <attr name="customFont" format="string"/>
+    </declare-styleable>
+    
+    <declare-styleable name="RoundedImageWithText">
+        <attr name="roundImageLabel" format="string"/>
+        <attr name="roundImageSrc" format="reference"/>
+        <attr name="roundImageLayout"  format="reference" />
+        <attr name="roundImageBgColor" format="color"/>
+    </declare-styleable>
+    
+    
+</resources>

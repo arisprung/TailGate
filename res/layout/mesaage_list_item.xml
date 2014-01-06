@@ -3,6 +3,7 @@
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
     android:background="@android:color/white"
+    android:minHeight="100dp"
     android:orientation="vertical" >
 
     <LinearLayout
@@ -35,12 +36,13 @@
 
         
 
-        <com.facebook.widget.ProfilePictureView
+        <ImageView
             android:id="@+id/avatar"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentRight="true"
-            facebook:preset_size="small" />
+            android:background="@drawable/ic_launcher"
+             />
 
         <TextView
             android:id="@+id/message"

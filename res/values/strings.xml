@@ -13,6 +13,7 @@
         <item>Select Team</item>
         <item>Send Message</item>
         <item>Map</item>
+        <item>Settings</item>
     </string-array>
 
     <!-- Nav Drawer List Item Icons -->

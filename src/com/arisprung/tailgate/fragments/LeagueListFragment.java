@@ -44,7 +44,7 @@ public class LeagueListFragment extends Fragment
 
 		try
 		{
-			View view = inflater.inflate(R.layout.list_view, container, false);
+			View view = inflater.inflate(R.layout.team_list_view, container, false);
 			
 			// userlist = new ArrayList<String>();
 			// userlist.add("Ari");
@@ -68,7 +68,7 @@ public class LeagueListFragment extends Fragment
 		// loadParticipantsList();
 
 		ArrayAdapter<String> adapter = new ArrayAdapter<String>(getActivity().getApplicationContext(),  android.R.layout.simple_list_item_1, mLeagueList);
-		listView = (ListView) getView().findViewById(R.id.list);
+		listView = (ListView) getView().findViewById(R.id.team_list);
 		listView.setAdapter(adapter);
 
 		listView.setTextFilterEnabled(true);
