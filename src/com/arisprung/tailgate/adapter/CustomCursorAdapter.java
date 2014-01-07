@@ -43,12 +43,14 @@ public class CustomCursorAdapter extends CursorAdapter
 		TextView textViewPersontime = (TextView) retView.findViewById(R.id.time);
 		ImageView profilePersonImage = (ImageView) retView.findViewById(R.id.avatar);
 		TextView textViewPersonName = (TextView) retView.findViewById(R.id.username);
+		TextView textTeam = (TextView) retView.findViewById(R.id.team);
 
 		MessageHolder holder = new MessageHolder();
 		holder.textViewPersonMessage = textViewPersonMessage;
 		holder.textViewPersontime = textViewPersontime;
 		holder.textViewPersonName = textViewPersonName;
 		holder.profilePersonImage = profilePersonImage;
+		holder.textViewTeam = textTeam;
 
 		retView.setTag(holder);
 
@@ -70,7 +72,8 @@ public class CustomCursorAdapter extends CursorAdapter
 		MessageHolder holder = (MessageHolder) view.getTag();
 		holder.textViewPersonMessage.setText(cursor.getString(cursor.getColumnIndex(cursor.getColumnName(1))));
 
-		holder.textViewPersontime.setText(getDate((cursor.getLong(cursor.getColumnIndex(cursor.getColumnName(4))))));
+		holder.textViewPersontime.setText(getDate((cursor.getLong(cursor.getColumnIndex(cursor.getColumnName(5))))));
+		holder.textViewTeam.setText(cursor.getString(cursor.getColumnIndex(cursor.getColumnName(4))));
 
 		//holder.profilePersonImage.s(cursor.getString(cursor.getColumnIndex(cursor.getColumnName(3))));
 		//
@@ -84,6 +87,7 @@ public class CustomCursorAdapter extends CursorAdapter
 		TextView textViewPersonMessage;
 		TextView textViewPersontime;
 		TextView textViewPersonName;
+		TextView textViewTeam;
 		ImageView profilePersonImage;
 	}
 

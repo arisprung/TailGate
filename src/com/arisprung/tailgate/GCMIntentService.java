@@ -45,6 +45,8 @@ import com.arisprung.tailgate.db.TailGateMessagesDataBase;
 import com.arisprung.tailgate.gcm.JsonUtil;
 import com.arisprung.tailgate.gcm.ServerUtilities;
 import com.arisprung.tailgate.utilities.TailGateUtility;
+import com.google.analytics.tracking.android.EasyTracker;
+import com.google.analytics.tracking.android.MapBuilder;
 import com.google.android.gcm.GCMBaseIntentService;
 import com.google.android.gcm.GCMRegistrar;
 
@@ -112,6 +114,11 @@ public class GCMIntentService extends GCMBaseIntentService
 		// displayMessage(context, message);
 		// notifies user
 
+		// May return null if a EasyTracker has not yet been initialized with a
+		// property ID.
+		
+
+
 		String strJson = intent.getStringExtra("json_message");
 		JSONObject jObj = null;
 		try
@@ -125,10 +132,24 @@ public class GCMIntentService extends GCMBaseIntentService
 		}
 
 		MessageBean message = JsonUtil.parseJsonToMessageBean(jObj);
-		addMessageDB(message);
+		
+//		EasyTracker easyTracker = EasyTracker.getInstance(context);
+//		if (easyTracker != null)
+//		{
+//			// MapBuilder.createEvent().build() returns a Map of event fields and values
+//			// that are set and sent with the hit.
+//			easyTracker.send(MapBuilder.createEvent("backround_service", // Event category (required)
+//					"OnMessage", // Event action (required)
+//					"message_recieved", // Event label
+//					Long.valueOf(message.getFaceID())) // Event value
+//					.build());
+//		}
+		
 		if (!message.getFaceID().equals(mTailgateSharedPreferences.getStringSharedPreferences
 				(TailGateSharedPreferences.FACEBOOK_ID, "")))
 		{
+			TailGateUtility.addMessageDB(message,context);
+			
 			SharedPreferences mySharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
 			boolean notify_checkbox_preference = mySharedPreferences.getBoolean("notification_preference", false);
 			if (notify_checkbox_preference)
@@ -162,26 +183,7 @@ public class GCMIntentService extends GCMBaseIntentService
 		displayMessage(context, getString(R.string.gcm_error, errorId));
 	}
 
-	private void addMessageDB(final MessageBean message)
-	{
-		long currentTime = System.currentTimeMillis();
-
-		try
-		{
-			ContentValues contentValues = new ContentValues();
-			contentValues.put("message_date", currentTime);
-			contentValues.put("message_face_id", message.getFaceID());
-			contentValues.put("message", message.getMessage());
-			contentValues.put("message_face_name", message.getUserName());
-
-			getContentResolver().insert(CONTENT_URI_MESSAGES, contentValues);
-		}
-		catch (Exception e)
-		{
-			e.printStackTrace();
-		}
-
-	}
+	
 
 	@Override
 	protected boolean onRecoverableError(Context context, String errorId)

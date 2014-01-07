@@ -7,6 +7,7 @@ public class MessageBean
 	private long date;
 	private String faceID;
 	private String message;
+	private String team;
 
 	public MessageBean()
 	{
@@ -30,6 +31,16 @@ public class MessageBean
 		this.faceID = faceID;
 		this.message = message;
 	}
+	public MessageBean(String faceID, String message, String userName,String team)
+	{
+		super();
+		this.userName = userName;
+
+		this.faceID = faceID;
+		this.message = message;
+		this.team = team;
+	}
+
 
 	public long getId()
 	{
@@ -80,5 +91,17 @@ public class MessageBean
 	{
 		this.message = message;
 	}
+
+	public String getTeam()
+	{
+		return team;
+	}
+
+	public void setTeam(String team)
+	{
+		this.team = team;
+	}
+	
+	
 
 }

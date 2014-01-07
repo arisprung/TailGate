@@ -42,6 +42,7 @@ import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.Paint.Style;
 import android.graphics.PorterDuff.Mode;
 import android.graphics.PorterDuffXfermode;
 import android.graphics.Rect;
@@ -106,9 +107,10 @@ public class FacebookImageLoader
 		canvas.drawCircle(bitmap.getWidth() / 2, bitmap.getHeight() / 2, bitmap.getWidth() / 2, paint);
 		paint.setXfermode(new PorterDuffXfermode(Mode.SRC_IN));
 		canvas.drawBitmap(bitmap, rect, rect, paint);
-		// Bitmap _bmp = Bitmap.createScaledBitmap(output, 60, 60, false);
+		 Bitmap _bmp = Bitmap.createScaledBitmap(output, 240,240, false);
 		// return _bmp;
-		return output;
+		Bitmap bit  = drawWhiteFrame(_bmp);
+		return bit;
 	}
 
 	private void forceLoad(String filename, ImageView imageView)
@@ -558,5 +560,36 @@ public class FacebookImageLoader
 
 		mDensityDpi = reflectedDensityDpi;
 		return mDensityDpi;
+	}
+	
+	private static Bitmap drawWhiteFrame(Bitmap bitmap)
+	{
+		
+		int w = bitmap.getWidth();                                          
+		int h = bitmap.getHeight();                                         
+
+		int radius = Math.min(h / 2, w / 2);                                
+		Bitmap output = Bitmap.createBitmap(w + 8, h + 8, Config.ARGB_8888);
+
+		Paint p = new Paint();                                              
+		p.setAntiAlias(true);                                               
+
+		Canvas c = new Canvas(output);                                      
+		c.drawARGB(0, 0, 0, 0);                                             
+		p.setStyle(Style.FILL);                                             
+
+		c.drawCircle((w / 2) + 4, (h / 2) + 4, radius, p);                  
+
+		p.setXfermode(new PorterDuffXfermode(Mode.SRC_IN));                 
+
+		c.drawBitmap(bitmap, 4, 4, p);                                      
+		p.setXfermode(null);                                                
+		p.setStyle(Style.STROKE);                                           
+		p.setColor(Color.WHITE);                                            
+		p.setStrokeWidth(3);                                                
+		c.drawCircle((w / 2) + 4, (h / 2) + 4, radius, p);                  
+
+		return output;   
+		
 	}
 }

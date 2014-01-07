@@ -126,6 +126,7 @@ public class MessageListFragment extends Fragment implements LoaderCallbacks<Cur
 			public void onClick(View v)
 			{
 				TailGateUtility.sendMessageToServer(getActivity(), editText, mTailgateSharedPreferences);
+				mListView.setSelection(0);
 			}
 		});
 	}
@@ -139,10 +140,10 @@ public class MessageListFragment extends Fragment implements LoaderCallbacks<Cur
 	}
 	
 	@Override
-	public void onPause()
+	public void onStop()
 	{
 		// TODO Auto-generated method stub
-		super.onPause();
+		super.onStop();
 		if (changeViewReciever == null)
 		{
 			Log.i(TAG, "Do not unregister receiver as it was never registered");
@@ -153,6 +154,9 @@ public class MessageListFragment extends Fragment implements LoaderCallbacks<Cur
 			changeViewReciever = null;
 		}
 	}
+	
+	
+	
 	@Override
 	public Loader<Cursor> onCreateLoader(int id, Bundle args)
 	{

@@ -62,6 +62,7 @@ import com.facebook.UiLifecycleHelper;
 import com.facebook.model.GraphLocation;
 import com.facebook.model.GraphUser;
 import com.facebook.widget.LoginButton;
+import com.google.analytics.tracking.android.EasyTracker;
 import com.google.android.gcm.GCMRegistrar;
 
 public class MainActivity extends FragmentActivity
@@ -117,11 +118,18 @@ public class MainActivity extends FragmentActivity
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.tailgate_main_activity);
 		bFirstRun = true;
-		// for (int i = 0; i < 500; i++)
-		// {
-		// addMessageDB();
-		//
-		// }
+		
+//		 for (int i = 0; i < 20; i++)
+//		{
+//			 addMessageDB("608052095");
+//			 addMessageDB("578805658");
+//			 addMessageDB("1008591997");
+//			 addMessageDB("100000138802549");
+//		}
+////		
+		 
+		
+		
 		if (mTailgateSharedPreferences == null)
 			mTailgateSharedPreferences = TailGateSharedPreferences.getInstance(getApplicationContext());
 		mTitle = mDrawerTitle = getTitle();
@@ -238,6 +246,7 @@ public class MainActivity extends FragmentActivity
 
 				if (mDrawerLayout.isDrawerOpen(Gravity.LEFT))
 				{
+					
 					mDrawerLayout.closeDrawer(Gravity.LEFT);
 				}
 				else
@@ -340,6 +349,22 @@ public class MainActivity extends FragmentActivity
 		uiHelper.onResume();
 		isResumed = true;
 
+	}
+	
+	@Override
+	protected void onStart()
+	{
+		// TODO Auto-generated method stub
+		super.onStart();
+		  EasyTracker.getInstance(this).activityStart(this);
+	}
+	@Override
+	protected void onStop()
+	{
+		// TODO Auto-generated method stub
+		super.onStop();
+		
+		EasyTracker.getInstance(this).activityStop(this);
 	}
 
 	private void registerForGCM()
@@ -744,7 +769,7 @@ public class MainActivity extends FragmentActivity
 		selectTeamText.setVisibility(View.GONE);
 	}
 
-	private void addMessageDB()
+	private void addMessageDB(String faceid)
 	{
 		long currentTime = System.currentTimeMillis();
 
@@ -752,9 +777,10 @@ public class MainActivity extends FragmentActivity
 		{
 			ContentValues contentValues = new ContentValues();
 			contentValues.put("message_date", currentTime);
-			contentValues.put("message_face_id", "1008591997");
+			contentValues.put("message_face_id", faceid);
 			contentValues.put("message", "test");
 			contentValues.put("message_face_name", "test");
+			contentValues.put("message_team", "test");
 
 			getContentResolver().insert(CONTENT_URI_MESSAGES, contentValues);
 		}

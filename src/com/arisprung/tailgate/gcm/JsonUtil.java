@@ -19,10 +19,11 @@ public class JsonUtil
 			String strFaceId = jobj.getString("id");
 			String strMessage = jobj.getString("message");
 			String strName = jobj.getString("username");
+			String strTeam = jobj.getString("team");
 		
 			
 
-			mBean = new MessageBean(strFaceId, strMessage, strName);
+			mBean = new MessageBean(strFaceId, strMessage, strName,strTeam);
 		}
 		catch (JSONException e)
 		{

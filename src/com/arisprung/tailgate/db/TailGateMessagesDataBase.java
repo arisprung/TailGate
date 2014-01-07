@@ -23,6 +23,7 @@ public class TailGateMessagesDataBase
 	public static final String COLUMN_MESSAGE = "message";
 	public static final String COLUMN_MESSAGE_NAME = "message_face_name";
 	public static final String COLUMN_MESSAGE_DATE = "message_date";
+	public static final String COLUMN_MESSAGE_TEAM = "message_team";
 	
 	public static final String TABLE_LOCATION = "location_table";
 	public static final String COLUMN_LOCATION_ID = "_id";
@@ -32,7 +33,7 @@ public class TailGateMessagesDataBase
 	public static final String COLUMN_LONGNITUDE = "longnitude";
 
 	private static final String DATABASE_MESSAGE_CREATE = "create table " + TABLE_MESSAGES + "(" + COLUMN_MESSAGE_ID + " integer primary key autoincrement, "
-			+ COLUMN_MESSAGE + " text not null, "+ COLUMN_MESSAGE_NAME + " text not null, " + COLUMN_MESSAGE_FACE_ID + " text not null,"+ COLUMN_MESSAGE_DATE + " integer" + ");";
+			+ COLUMN_MESSAGE + " text not null, "+ COLUMN_MESSAGE_NAME + " text not null, " + COLUMN_MESSAGE_FACE_ID + " text not null,"+ COLUMN_MESSAGE_TEAM + " text, "+ COLUMN_MESSAGE_DATE + " integer" + ");";
 
 	
 	private static final String DATABASE_LOCATION_CREATE = "create table " + TABLE_LOCATION + "(" + COLUMN_LOCATION_ID + " integer primary key autoincrement, "

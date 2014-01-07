@@ -12,10 +12,10 @@ public final class R {
         /**  Nav Drawer List Item Icons 
  Keep them in order as the titles are in 
          */
-        public static final int nav_drawer_icons=0x7f0a0001;
+        public static final int nav_drawer_icons=0x7f0c0001;
         /**  Nav Drawer Menu Items 
          */
-        public static final int nav_drawer_items=0x7f0a0000;
+        public static final int nav_drawer_items=0x7f0c0000;
     }
     public static final class attr {
         /** <p>Must be a color value, in the form of "<code>#<i>rgb</i></code>", "<code>#<i>argb</i></code>",
@@ -429,6 +429,14 @@ containing a value of this type.
          */
         public static final int zOrderOnTop=0x7f01000d;
     }
+    public static final class bool {
+        /**  Enable automatic activity tracking 
+         */
+        public static final int ga_autoActivityTracking=0x7f0a0000;
+        /**  Enable automatic exception tracking 
+         */
+        public static final int ga_reportUncaughtExceptions=0x7f0a0001;
+    }
     public static final class color {
         public static final int com_facebook_blue=0x7f05000c;
         public static final int com_facebook_loginview_text_color=0x7f050010;
@@ -546,8 +554,8 @@ containing a value of this type.
     public static final class id {
         public static final int auth_button=0x7f060008;
         public static final int auth_button_drawer=0x7f060020;
-        public static final int avatar=0x7f06002e;
-        public static final int button=0x7f060031;
+        public static final int avatar=0x7f06002f;
+        public static final int button=0x7f060032;
         public static final int com_facebook_login_activity_progress_bar=0x7f06000d;
         public static final int com_facebook_picker_activity_circle=0x7f06000c;
         public static final int com_facebook_picker_checkbox=0x7f06000f;
@@ -569,19 +577,19 @@ containing a value of this type.
         public static final int com_facebook_usersettingsfragment_logo_image=0x7f06001d;
         public static final int com_facebook_usersettingsfragment_profile_name=0x7f06001e;
         public static final int drawer_icon=0x7f060007;
-        public static final int drawer_layout=0x7f060032;
-        public static final int editText=0x7f060030;
+        public static final int drawer_layout=0x7f060033;
+        public static final int editText=0x7f060031;
         public static final int empty_text=0x7f060027;
-        public static final int frame_container=0x7f060033;
+        public static final int frame_container=0x7f060034;
         public static final int hybrid=0x7f060004;
         public static final int icon=0x7f060021;
-        public static final int l_layout_1=0x7f06002d;
+        public static final int l_layout_1=0x7f06002e;
         public static final int l_layout_2=0x7f06002a;
         public static final int large=0x7f060006;
         public static final int list=0x7f060026;
-        public static final int list_slidermenu=0x7f060034;
+        public static final int list_slidermenu=0x7f060035;
         public static final int map=0x7f060029;
-        public static final int message=0x7f06002f;
+        public static final int message=0x7f060030;
         public static final int none=0x7f060000;
         public static final int normal=0x7f060001;
         public static final int picker_subtitle=0x7f06001a;
@@ -592,12 +600,16 @@ containing a value of this type.
         public static final int send_ll=0x7f060028;
         public static final int small=0x7f060005;
         public static final int splash_icon=0x7f060023;
-        public static final int team_list=0x7f060035;
+        public static final int team=0x7f06002d;
+        public static final int team_list=0x7f060036;
         public static final int terrain=0x7f060003;
         public static final int time=0x7f06002c;
         public static final int title=0x7f060022;
         public static final int user_name_checked=0x7f060025;
         public static final int username=0x7f06002b;
+    }
+    public static final class integer {
+        public static final int ga_dispatchPeriod=0x7f0b0000;
     }
     public static final class layout {
         public static final int action_bar_layout=0x7f030000;
@@ -630,13 +642,13 @@ containing a value of this type.
         public static final int team_list_view=0x7f03001b;
     }
     public static final class menu {
-        public static final int main=0x7f0b0000;
+        public static final int main=0x7f0d0000;
     }
     public static final class string {
-        public static final int action_settings=0x7f07002f;
-        public static final int already_registered=0x7f070036;
-        public static final int app_id=0x7f070034;
-        public static final int app_name=0x7f07002e;
+        public static final int action_settings=0x7f070030;
+        public static final int already_registered=0x7f070037;
+        public static final int app_id=0x7f070035;
+        public static final int app_name=0x7f07002f;
         /**   Title for notification shown when GooglePlayServices needs to be
         enabled for a application to work. [CHAR LIMIT=70] 
          */
@@ -742,24 +754,27 @@ containing a value of this type.
         public static final int common_signin_button_text_long=0x7f07000e;
         /**  Content Description 
          */
-        public static final int desc_list_item_icon=0x7f070033;
-        public static final int drawer_close=0x7f070032;
-        public static final int drawer_open=0x7f070031;
-        public static final int error_config=0x7f070035;
-        public static final int gcm_deleted=0x7f07003c;
-        public static final int gcm_error=0x7f07003a;
-        public static final int gcm_message=0x7f070039;
-        public static final int gcm_recoverable_error=0x7f07003b;
-        public static final int gcm_registered=0x7f070037;
-        public static final int gcm_unregistered=0x7f070038;
-        public static final int hello_world=0x7f070030;
-        public static final int options_register=0x7f070042;
-        public static final int options_unregister=0x7f070043;
-        public static final int server_register_error=0x7f070040;
-        public static final int server_registered=0x7f07003e;
-        public static final int server_registering=0x7f07003d;
-        public static final int server_unregister_error=0x7f070041;
-        public static final int server_unregistered=0x7f07003f;
+        public static final int desc_list_item_icon=0x7f070034;
+        public static final int drawer_close=0x7f070033;
+        public static final int drawer_open=0x7f070032;
+        public static final int error_config=0x7f070036;
+        /**  Replace placeholder ID with your tracking ID 
+         */
+        public static final int ga_trackingId=0x7f07002e;
+        public static final int gcm_deleted=0x7f07003d;
+        public static final int gcm_error=0x7f07003b;
+        public static final int gcm_message=0x7f07003a;
+        public static final int gcm_recoverable_error=0x7f07003c;
+        public static final int gcm_registered=0x7f070038;
+        public static final int gcm_unregistered=0x7f070039;
+        public static final int hello_world=0x7f070031;
+        public static final int options_register=0x7f070043;
+        public static final int options_unregister=0x7f070044;
+        public static final int server_register_error=0x7f070041;
+        public static final int server_registered=0x7f07003f;
+        public static final int server_registering=0x7f07003e;
+        public static final int server_unregister_error=0x7f070042;
+        public static final int server_unregistered=0x7f070040;
     }
     public static final class style {
         /** 
