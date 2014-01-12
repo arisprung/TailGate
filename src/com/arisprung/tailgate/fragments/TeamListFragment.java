@@ -55,23 +55,27 @@ public class TeamListFragment extends Fragment
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
 	{
 
-		if (MainActivity.mLeagueSelected.equals(TailgateConstants.NFL))
+		if (MainActivity.mLeagueSelected != null)
 		{
-			mTeamList = TailgateConstants.NFL_LIST;
-		}
-		else if (MainActivity.mLeagueSelected.equals(TailgateConstants.NBA))
-		{
-			mTeamList = TailgateConstants.NBA_LIST;
-		}
-		else if (MainActivity.mLeagueSelected.equals(TailgateConstants.NHL))
-		{
-			mTeamList = TailgateConstants.NHL_LIST;
-		}
-		else if (MainActivity.mLeagueSelected.equals(TailgateConstants.MLB))
-		{
-			mTeamList = TailgateConstants.MLB_LIST;
-		}
 
+			if (MainActivity.mLeagueSelected.equals(TailgateConstants.NFL))
+			{
+				mTeamList = TailgateConstants.NFL_LIST;
+			}
+			else if (MainActivity.mLeagueSelected.equals(TailgateConstants.NBA))
+			{
+				mTeamList = TailgateConstants.NBA_LIST;
+			}
+			else if (MainActivity.mLeagueSelected.equals(TailgateConstants.NHL))
+			{
+				mTeamList = TailgateConstants.NHL_LIST;
+			}
+			else if (MainActivity.mLeagueSelected.equals(TailgateConstants.MLB))
+			{
+				mTeamList = TailgateConstants.MLB_LIST;
+			}
+
+		}
 		try
 		{
 			View view = inflater.inflate(R.layout.team_list_view, container, false);
@@ -142,7 +146,7 @@ public class TeamListFragment extends Fragment
 							strLeagueSelected = MainActivity.mLeagueSelected;
 							sendDataToServer(position);
 							sendBroadCastTeamChanged();
-						
+
 						}
 						else
 						{
@@ -180,7 +184,7 @@ public class TeamListFragment extends Fragment
 				}
 				else
 				{
-					TailGateUtility.showAuthenticatedDialog(getActivity(),"Please Login", "Please login before selecting team");
+					TailGateUtility.showAuthenticatedDialog(getActivity(), "Please Login", "Please login before selecting team");
 				}
 			}
 		});
@@ -222,12 +226,12 @@ public class TeamListFragment extends Fragment
 		}
 
 	}
-	
+
 	private void sendBroadCastTeamChanged()
 	{
-	
+
 		getActivity().sendBroadcast(new Intent("change_view"));
 		getActivity().sendBroadcast(new Intent("Team_Selected"));
-		
+
 	}
 }

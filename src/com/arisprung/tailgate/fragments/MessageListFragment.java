@@ -5,9 +5,13 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.database.Cursor;
+import android.graphics.drawable.ColorDrawable;
+import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.AsyncTaskLoader;
 import android.support.v4.content.CursorLoader;
@@ -16,7 +20,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.view.inputmethod.InputMethodManager;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
@@ -25,14 +28,14 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.arisprung.tailgate.R;
 import com.arisprung.tailgate.TailGateSharedPreferences;
 import com.arisprung.tailgate.adapter.CustomCursorAdapter;
-import com.arisprung.tailgate.adapter.MessageListAdapter;
 import com.arisprung.tailgate.db.TailGateMessagesDataBase;
 import com.arisprung.tailgate.utilities.TailGateUtility;
-import com.facebook.Session;
+import com.google.android.gms.maps.model.LatLng;
 
 public class MessageListFragment extends Fragment implements LoaderCallbacks<Cursor>
 {
@@ -72,6 +75,7 @@ public class MessageListFragment extends Fragment implements LoaderCallbacks<Cur
 		editText = (EditText) view.findViewById(R.id.editText);
 		emptyText = (TextView) view.findViewById(R.id.empty_text);
 		sendLinearLayout = (LinearLayout) view.findViewById(R.id.send_ll);
+
 		return view;
 
 	}
@@ -114,10 +118,45 @@ public class MessageListFragment extends Fragment implements LoaderCallbacks<Cur
 		mListView.setOnItemClickListener(new OnItemClickListener() {
 
 			@Override
-			public void onItemClick(AdapterView<?> arg0, View v, int i, long l)
+			public void onItemClick(AdapterView<?> arg0, View v, int position, long l)
 			{
-				Log.i(TAG, "Item Clicked");
+				// Log.i(TAG, "Item Clicked");
+				
+				LocationManager manager = (LocationManager) getActivity().getApplicationContext().getSystemService(Context.LOCATION_SERVICE);
+				if (!manager.isProviderEnabled(LocationManager.GPS_PROVIDER))
+				{
+					TailGateUtility.buildAlertMessageNoGps(getActivity());
+					return;
+				}
+				MapUserFragment mapFrag = new MapUserFragment();
+				Bundle bundle = new Bundle();
+				Cursor cur = (Cursor) mCusrorAdapter.getItem(position);
+				cur.moveToPosition(position);
+				String faceId = cur.getString(cur.getColumnIndexOrThrow("message_face_id"));
+				
+				LatLng latLong = TailGateUtility.getLatLongFromDB(faceId, getActivity().getApplicationContext());
+				if(latLong != null)
+				{
+					bundle.putDouble("message_latitude", latLong.latitude);
+					bundle.putDouble("message_longnitude", latLong.longitude);
+					mapFrag.setArguments(bundle);
 
+					FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
+					FragmentTransaction ft = fragmentManager.beginTransaction().replace(R.id.frame_container, mapFrag, "map");
+					ft.addToBackStack("map");
+					ft.commit();
+				}
+				else
+				{
+					Toast.makeText(getActivity(), "Cant find Location", Toast.LENGTH_SHORT).show();
+				}
+			
+
+				// update selected item and title, then close the drawer
+				// mDrawerList.setItemChecked(position, true);
+				// mDrawerList.setSelection(position);
+				// setTitle(navMenuTitles[position]);
+				// mDrawerLayout.closeDrawer(mDrawerList);
 			}
 		});
 		sendButton.setOnClickListener(new OnClickListener() {
@@ -137,8 +176,9 @@ public class MessageListFragment extends Fragment implements LoaderCallbacks<Cur
 		// TODO Auto-generated method stub
 		super.onResume();
 		getActivity().getApplicationContext().registerReceiver(changeViewReciever, new IntentFilter("change_view"));
+		mListView.setSelection(0);
 	}
-	
+
 	@Override
 	public void onStop()
 	{
@@ -154,9 +194,7 @@ public class MessageListFragment extends Fragment implements LoaderCallbacks<Cur
 			changeViewReciever = null;
 		}
 	}
-	
-	
-	
+
 	@Override
 	public Loader<Cursor> onCreateLoader(int id, Bundle args)
 	{
@@ -176,7 +214,7 @@ public class MessageListFragment extends Fragment implements LoaderCallbacks<Cur
 
 		mCusrorAdapter = new CustomCursorAdapter(getActivity().getApplicationContext(), cursor);
 		mListView.setAdapter(mCusrorAdapter);
-
+		mListView.setSelection(0);
 		if (mListView.getCount() > 0)
 		{
 			emptyText.setVisibility(View.GONE);
@@ -246,8 +284,8 @@ public class MessageListFragment extends Fragment implements LoaderCallbacks<Cur
 		@Override
 		public void onReceive(Context context, Intent intent)
 		{
-			
-			if(mListView != null)
+
+			if (mListView != null)
 			{
 				if (mListView.getCount() == 0)
 				{
@@ -255,8 +293,6 @@ public class MessageListFragment extends Fragment implements LoaderCallbacks<Cur
 				}
 			}
 
-			
-			
 		}
 	};
 

@@ -36,6 +36,7 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
 
 import android.content.Context;
+import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.Config;
 import android.graphics.BitmapFactory;
@@ -67,15 +68,20 @@ public class FacebookImageLoader
 	private static final String LOGCAT_NAME = "FacebookImageLoader";
 	private static final int BUFFER_SIZE = 8 * 1024;
 	private static final String BASE_URL = "http://graph.facebook.com/";
-	private static final String PICTURE = "/picture?type=large";
+	private static final String PICTURE = "/picture?type=normal";
 	private static int mDensityDpi = 0;
-	private Context mContext;
+	private static int mWidthProfilePic = 240;
+	private static int mHeightProfilePic = 240;
+	private static Context mContext;
 	private int mMaxDimension;
 
 	public FacebookImageLoader(Context context)
 	{
 		mContext = context;
 		mMaxDimension = getMaxThumbnailDimension(mContext, false);
+		int screenSize = context.getResources().getConfiguration().screenLayout & Configuration.SCREENLAYOUT_SIZE_MASK;
+		// DisplayMetrics metrics = context.getResources().getDisplayMetrics();
+
 	}
 
 	public void load(String filename, ImageView imageView)
@@ -107,9 +113,10 @@ public class FacebookImageLoader
 		canvas.drawCircle(bitmap.getWidth() / 2, bitmap.getHeight() / 2, bitmap.getWidth() / 2, paint);
 		paint.setXfermode(new PorterDuffXfermode(Mode.SRC_IN));
 		canvas.drawBitmap(bitmap, rect, rect, paint);
-		 Bitmap _bmp = Bitmap.createScaledBitmap(output, 240,240, false);
+		int dens = mContext.getResources().getDisplayMetrics().densityDpi;
+		Bitmap _bmp = Bitmap.createScaledBitmap(output, dens/2, dens/2, false);
 		// return _bmp;
-		Bitmap bit  = drawWhiteFrame(_bmp);
+		Bitmap bit = TailGateUtility.drawWhiteFrame(_bmp);
 		return bit;
 	}
 
@@ -561,35 +568,6 @@ public class FacebookImageLoader
 		mDensityDpi = reflectedDensityDpi;
 		return mDensityDpi;
 	}
+
 	
-	private static Bitmap drawWhiteFrame(Bitmap bitmap)
-	{
-		
-		int w = bitmap.getWidth();                                          
-		int h = bitmap.getHeight();                                         
-
-		int radius = Math.min(h / 2, w / 2);                                
-		Bitmap output = Bitmap.createBitmap(w + 8, h + 8, Config.ARGB_8888);
-
-		Paint p = new Paint();                                              
-		p.setAntiAlias(true);                                               
-
-		Canvas c = new Canvas(output);                                      
-		c.drawARGB(0, 0, 0, 0);                                             
-		p.setStyle(Style.FILL);                                             
-
-		c.drawCircle((w / 2) + 4, (h / 2) + 4, radius, p);                  
-
-		p.setXfermode(new PorterDuffXfermode(Mode.SRC_IN));                 
-
-		c.drawBitmap(bitmap, 4, 4, p);                                      
-		p.setXfermode(null);                                                
-		p.setStyle(Style.STROKE);                                           
-		p.setColor(Color.WHITE);                                            
-		p.setStrokeWidth(3);                                                
-		c.drawCircle((w / 2) + 4, (h / 2) + 4, radius, p);                  
-
-		return output;   
-		
-	}
 }

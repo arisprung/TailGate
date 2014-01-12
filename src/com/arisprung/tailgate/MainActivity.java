@@ -3,6 +3,8 @@ package com.arisprung.tailgate;
 import static com.arisprung.tailgate.gcm.CommonUtilities.SENDER_ID;
 import static com.arisprung.tailgate.gcm.CommonUtilities.SERVER_URL;
 
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -16,8 +18,11 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
+import android.content.pm.PackageManager.NameNotFoundException;
+import android.content.pm.Signature;
 import android.content.res.Configuration;
-import android.content.res.TypedArray;
 import android.location.LocationManager;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -28,6 +33,7 @@ import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.widget.DrawerLayout;
+import android.util.Base64;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -37,11 +43,11 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.arisprung.tailgate.adapter.NavDrawerListAdapter;
@@ -88,7 +94,8 @@ public class MainActivity extends FragmentActivity
 	private ImageView profilePic;
 	private TextView selectTeamText;
 	private EditText editText;
-	private Button drawButton;
+	private ImageView drawButton;
+	private RelativeLayout linearLayoutDrawer;
 	// used to store app title
 	private CharSequence mTitle;
 
@@ -96,7 +103,6 @@ public class MainActivity extends FragmentActivity
 
 	// slide menu items
 	private String[] navMenuTitles;
-	private TypedArray navMenuIcons;
 
 	private boolean isResumed = false;
 	public static String mLeagueSelected;
@@ -118,18 +124,14 @@ public class MainActivity extends FragmentActivity
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.tailgate_main_activity);
 		bFirstRun = true;
-		
-//		 for (int i = 0; i < 20; i++)
-//		{
-//			 addMessageDB("608052095");
-//			 addMessageDB("578805658");
-//			 addMessageDB("1008591997");
-//			 addMessageDB("100000138802549");
-//		}
-////		
-		 
-		
-		
+
+		// addMessageDB("608052095");
+		// addMessageDB("578805658");
+		// addMessageDB("1008591997");
+		// addMessageDB("100000138802549");
+
+		//
+
 		if (mTailgateSharedPreferences == null)
 			mTailgateSharedPreferences = TailGateSharedPreferences.getInstance(getApplicationContext());
 		mTitle = mDrawerTitle = getTitle();
@@ -144,30 +146,30 @@ public class MainActivity extends FragmentActivity
 		// while developing the app, then uncomment it when it's ready.
 		GCMRegistrar.checkManifest(this);
 
-		// try
-		// {
-		// PackageInfo info = getPackageManager().getPackageInfo("com.arisprung.tailgate", PackageManager.GET_SIGNATURES);
-		// for (Signature signature : info.signatures)
-		// {
-		// MessageDigest md = MessageDigest.getInstance("SHA");
-		// md.update(signature.toByteArray());
-		// Log.d("Your Tag", Base64.encodeToString(md.digest(), Base64.DEFAULT));
-		// }
-		// }
-		// catch (NameNotFoundException e)
-		// {
-		//
-		// }
-		// catch (NoSuchAlgorithmException e)
-		// {
-		//
-		// }
+//		try
+//		{
+//			PackageInfo info = getPackageManager().getPackageInfo("com.arisprung.tailgate", PackageManager.GET_SIGNATURES);
+//			for (Signature signature : info.signatures)
+//			{
+//				MessageDigest md = MessageDigest.getInstance("SHA");
+//				md.update(signature.toByteArray());
+//				Log.d("Your Tag", Base64.encodeToString(md.digest(), Base64.DEFAULT));
+//			}
+//		}
+//		catch (NameNotFoundException e)
+//		{
+//
+//		}
+//		catch (NoSuchAlgorithmException e)
+//		{
+//
+//		}
 
 		// load slide menu items
 		navMenuTitles = getResources().getStringArray(R.array.nav_drawer_items);
 
 		// nav drawer icons from resources
-		navMenuIcons = getResources().obtainTypedArray(R.array.nav_drawer_icons);
+		// navMenuIcons = getResources().obtainTypedArray(R.array.nav_drawer_icons);
 
 		mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
 		mDrawerList = (ListView) findViewById(R.id.list_slidermenu);
@@ -179,16 +181,16 @@ public class MainActivity extends FragmentActivity
 
 		// adding nav drawer items to array
 		// Home
-		navDrawerItems.add(new NavDrawerItem(navMenuTitles[0], navMenuIcons.getResourceId(0, -1)));
+		navDrawerItems.add(new NavDrawerItem(navMenuTitles[0], R.drawable.icons_messages_48px));
 		// Find People
-		navDrawerItems.add(new NavDrawerItem(navMenuTitles[1], navMenuIcons.getResourceId(1, -1)));
+		navDrawerItems.add(new NavDrawerItem(navMenuTitles[1], R.drawable.icons_select_48px));
 		// Photos
-		navDrawerItems.add(new NavDrawerItem(navMenuTitles[2], navMenuIcons.getResourceId(2, -1)));
-		navDrawerItems.add(new NavDrawerItem(navMenuTitles[3], navMenuIcons.getResourceId(2, -1)));
-		navDrawerItems.add(new NavDrawerItem(navMenuTitles[4], navMenuIcons.getResourceId(2, -1)));
+		navDrawerItems.add(new NavDrawerItem(navMenuTitles[2], R.drawable.icons_messages_48px));
+		navDrawerItems.add(new NavDrawerItem(navMenuTitles[3], R.drawable.icons_map_48px));
+		navDrawerItems.add(new NavDrawerItem(navMenuTitles[4], R.drawable.icons_settings_48px));
 
 		// Recycle the typed array
-		navMenuIcons.recycle();
+		// navMenuIcons.recycle();
 
 		// FragmentManager fm = getSupportFragmentManager();
 		// fragments[SPLASH] = new HomeFragment();
@@ -237,8 +239,10 @@ public class MainActivity extends FragmentActivity
 		actionBar.setDisplayUseLogoEnabled(false);
 		authButton = (LoginButton) findViewById(R.id.auth_button);
 		selectTeamText = (TextView) findViewById(R.id.selected_team_text);
-		drawButton = (Button) findViewById(R.id.drawer_icon);
-		drawButton.setOnClickListener(new OnClickListener() {
+		drawButton = (ImageView) findViewById(R.id.drawer_icon);
+
+		linearLayoutDrawer = (RelativeLayout) findViewById(R.id.drawer_l_layout);
+		linearLayoutDrawer.setOnClickListener(new OnClickListener() {
 
 			@Override
 			public void onClick(View v)
@@ -246,7 +250,7 @@ public class MainActivity extends FragmentActivity
 
 				if (mDrawerLayout.isDrawerOpen(Gravity.LEFT))
 				{
-					
+
 					mDrawerLayout.closeDrawer(Gravity.LEFT);
 				}
 				else
@@ -350,20 +354,21 @@ public class MainActivity extends FragmentActivity
 		isResumed = true;
 
 	}
-	
+
 	@Override
 	protected void onStart()
 	{
 		// TODO Auto-generated method stub
 		super.onStart();
-		  EasyTracker.getInstance(this).activityStart(this);
+		EasyTracker.getInstance(this).activityStart(this);
 	}
+
 	@Override
 	protected void onStop()
 	{
 		// TODO Auto-generated method stub
 		super.onStop();
-		
+
 		EasyTracker.getInstance(this).activityStop(this);
 	}
 
@@ -671,6 +676,7 @@ public class MainActivity extends FragmentActivity
 						// view that in turn displays the profile picture.
 						// profilePic.setProfileId(user.getId());
 						mImageLoader.load(user.getId(), profilePic);
+						// profilePic.setBackgroundResource(R.drawable.fanatic_icon_72px);
 						// Set the Textview's text to the user's name.
 						// userNameView.setText(user.getName());
 
@@ -778,9 +784,9 @@ public class MainActivity extends FragmentActivity
 			ContentValues contentValues = new ContentValues();
 			contentValues.put("message_date", currentTime);
 			contentValues.put("message_face_id", faceid);
-			contentValues.put("message", "test");
-			contentValues.put("message_face_name", "test");
-			contentValues.put("message_team", "test");
+			contentValues.put("message", "Cool Im there");
+			contentValues.put("message_face_name", "Andrew White");
+			contentValues.put("message_team", "Miami Heat");
 
 			getContentResolver().insert(CONTENT_URI_MESSAGES, contentValues);
 		}
@@ -805,7 +811,7 @@ public class MainActivity extends FragmentActivity
 		String strTeam = mTailgateSharedPreferences.getStringSharedPreferences(TailGateSharedPreferences.SELECTED_TEAM, "");
 		if (!strTeam.equals(""))
 		{
-			selectTeamText.setText(strTeam + " selected");
+			selectTeamText.setText(strTeam);
 		}
 	}
 	//

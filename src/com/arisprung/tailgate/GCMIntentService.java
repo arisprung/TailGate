@@ -151,7 +151,7 @@ public class GCMIntentService extends GCMBaseIntentService
 			TailGateUtility.addMessageDB(message,context);
 			
 			SharedPreferences mySharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
-			boolean notify_checkbox_preference = mySharedPreferences.getBoolean("notification_preference", false);
+			boolean notify_checkbox_preference = mySharedPreferences.getBoolean("notification_preference", true);
 			if (notify_checkbox_preference)
 			{
 				generateNotification(context, message);	
@@ -223,17 +223,17 @@ public class GCMIntentService extends GCMBaseIntentService
 //		Notification n = builder.build();
 //
 //		nm.notify(0, n);
-		int icon = R.drawable.ic_launcher;
+		int icon = R.drawable.fanatic_icon_72px;
 		long when = System.currentTimeMillis();
 		NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
 		Notification notification = new Notification(icon, message.getMessage(), when);
 		
-		String title = context.getString(R.string.app_name);
+		String name = message.getUserName();
 		Intent notificationIntent = new Intent(context, MainActivity.class);
 		// set intent so it does not start a new activity
 		notificationIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
 		PendingIntent intent = PendingIntent.getActivity(context, 0, notificationIntent, 0);
-		notification.setLatestEventInfo(context, title, message.getMessage(), intent);
+		notification.setLatestEventInfo(context, name, message.getMessage(), intent);
 		notification.flags |= Notification.FLAG_AUTO_CANCEL;
 		notificationManager.notify(0, notification);
 		

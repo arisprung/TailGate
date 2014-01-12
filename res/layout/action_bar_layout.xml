@@ -4,16 +4,29 @@
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:background="#212121" >
-    
-      <Button
-        android:id="@+id/drawer_icon"
+
+    <RelativeLayout
+        android:id="@+id/drawer_l_layout"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-       
-        android:background="@drawable/ic_launcher"
-        android:layout_centerVertical="true"
+        android:layout_height="fill_parent"
         android:layout_alignParentLeft="true"
-      />
+        android:layout_centerVertical="true" >
+
+        <ImageView
+            android:id="@+id/drawer"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:src="@drawable/ic_drawer" />
+
+        <ImageView
+            android:id="@+id/drawer_icon"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_toRightOf="@+id/drawer"
+            android:src="@drawable/fanatics_icon_36_white" />
+    </RelativeLayout>
 
     <com.facebook.widget.LoginButton
         android:id="@+id/auth_button"
@@ -27,18 +40,19 @@
         android:layout_height="wrap_content"
         android:layout_centerInParent="true"
         android:text="No team selected"
-        android:background="@android:color/holo_green_light"
         android:textColor="@android:color/white"
+        android:textSize="20sp"
         android:visibility="gone" />
 
     <ImageView
         android:id="@+id/selection_profile_pic"
-        android:layout_width="wrap_content"
-       
-        android:layout_height="wrap_content"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        android:layout_marginRight="5dp"
+        android:layout_marginTop="5dp"
+        android:layout_marginBottom="5dp"
         android:layout_alignParentRight="true"
         android:layout_centerVertical="true"
-        android:paddingRight="10dp"
         android:visibility="gone" />
 
 </RelativeLayout>

@@ -73,7 +73,16 @@ public class CustomCursorAdapter extends CursorAdapter
 		holder.textViewPersonMessage.setText(cursor.getString(cursor.getColumnIndex(cursor.getColumnName(1))));
 
 		holder.textViewPersontime.setText(getDate((cursor.getLong(cursor.getColumnIndex(cursor.getColumnName(5))))));
-		holder.textViewTeam.setText(cursor.getString(cursor.getColumnIndex(cursor.getColumnName(4))));
+		String strTeam = cursor.getString(cursor.getColumnIndex(cursor.getColumnName(4)));
+		
+		
+		if(strTeam.contains(" "))
+		{
+			int i = strTeam.indexOf(" ");
+			strTeam = strTeam.substring(i);
+		}
+		
+		holder.textViewTeam.setText(strTeam);
 
 		//holder.profilePersonImage.s(cursor.getString(cursor.getColumnIndex(cursor.getColumnName(3))));
 		//

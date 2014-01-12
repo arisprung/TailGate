@@ -2,21 +2,35 @@ package com.arisprung.tailgate.utilities;
 
 import java.io.InputStream;
 import java.net.URL;
+import java.util.ArrayList;
 
 import com.arisprung.tailgate.MessageBean;
 import com.arisprung.tailgate.TailGateSharedPreferences;
+import com.arisprung.tailgate.db.TailGateMessagesContentProvider;
+import com.arisprung.tailgate.db.TailGateMessagesDataBase;
 import com.arisprung.tailgate.fragments.SendMessageAsyncTaskLoader;
 import com.facebook.Session;
 import com.google.analytics.tracking.android.EasyTracker;
 import com.google.analytics.tracking.android.MapBuilder;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MarkerOptions;
 
 import android.app.AlertDialog;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Paint;
+import android.graphics.PorterDuffXfermode;
+import android.graphics.Bitmap.Config;
+import android.graphics.Paint.Style;
+import android.graphics.PorterDuff.Mode;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
@@ -184,9 +198,9 @@ public class TailGateUtility
 						{
 							// MapBuilder.createEvent().build() returns a Map of event fields and values
 							// that are set and sent with the hit.
-							easyTracker.send(MapBuilder.createEvent("ui_action", // Event category (required)
-									"button_press", // Event action (required)
-									"send_message", // Event label
+							easyTracker.send(MapBuilder.createEvent("Message_Sent", // Event category (required)
+									strTeam, // Event action (required)
+									edittext.getText().toString(), // Event label
 									null) // Event value
 									.build());
 						}
@@ -259,6 +273,73 @@ public class TailGateUtility
 		{
 			e.printStackTrace();
 		}
+
+	}
+	
+	public static LatLng getLatLongFromDB(String id,Context context)
+	{
+		
+		Cursor curs = null;
+		String lan = null ;
+		String longni = null;
+
+		String[] projection = new String[] { TailGateMessagesDataBase.COLUMN_LANITUDE,
+				TailGateMessagesDataBase.COLUMN_LONGNITUDE };
+		String where  = TailGateMessagesDataBase.COLUMN_LOCATION_FACE_ID + " = '" + id + "'";
+		curs = context.getApplicationContext().getContentResolver()
+				.query(TailGateMessagesContentProvider.CONTENT_URI_LOCATION, projection, where,null , null);
+		int iCount = curs.getCount();
+
+		
+		while (curs.moveToNext())
+		{
+			 lan = curs.getString(0);
+			 longni = curs.getString(1);
+		
+
+			
+
+		}
+		if(lan != null && longni!= null)
+		{
+			LatLng latlong = new LatLng(Double.valueOf(lan),Double.valueOf(longni));
+			return latlong;
+		}
+		return null;
+		
+		
+	
+		
+	}
+	
+	public static Bitmap drawWhiteFrame(Bitmap bitmap)
+	{
+
+		int w = bitmap.getWidth();
+		int h = bitmap.getHeight();
+
+		int radius = Math.min(h / 2, w / 2);
+		Bitmap output = Bitmap.createBitmap(w + 8, h + 8, Config.ARGB_8888);
+
+		Paint p = new Paint();
+		p.setAntiAlias(true);
+
+		Canvas c = new Canvas(output);
+		c.drawARGB(0, 0, 0, 0);
+		p.setStyle(Style.FILL);
+
+		c.drawCircle((w / 2) + 4, (h / 2) + 4, radius, p);
+
+		p.setXfermode(new PorterDuffXfermode(Mode.SRC_IN));
+
+		c.drawBitmap(bitmap, 4, 4, p);
+		p.setXfermode(null);
+		p.setStyle(Style.STROKE);
+		p.setColor(Color.WHITE);
+		p.setStrokeWidth(3);
+		c.drawCircle((w / 2) + 4, (h / 2) + 4, radius, p);
+
+		return output;
 
 	}
 }

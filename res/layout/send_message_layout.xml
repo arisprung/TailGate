@@ -11,6 +11,7 @@
         android:layout_width="wrap_content"
         android:layout_height="60dp"
         android:textColor="@android:color/white"
+       
         android:layout_weight="4"
         android:hint="Type here to add a message" >
     </EditText>

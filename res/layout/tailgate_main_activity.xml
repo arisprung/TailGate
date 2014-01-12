@@ -20,10 +20,8 @@
         android:layout_gravity="start"
         android:background="@color/list_background"
         android:choiceMode="singleChoice"
-        android:divider="@color/list_divider"
+        android:divider="#272727"
         android:dividerHeight="1dp"
         android:listSelector="@drawable/ic_launcher" />
-
-
 
 </android.support.v4.widget.DrawerLayout>
